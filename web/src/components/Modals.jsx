@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FolderPlus, Edit3, FolderInput, KeyRound, X, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import useEscapeKey from '../hooks/useEscapeKey.js';
+import { X, ChevronLeft, ChevronRight } from '../icons.jsx';
 import FolderIcon from './FolderIcon.jsx';
 import { formatFileSize, formatDate } from './FileIcon.jsx';
 import { api } from '../api/client.js';
@@ -8,6 +9,7 @@ import { api } from '../api/client.js';
  * Modal Buat Folder Baru
  */
 export function NewFolderModal({ isOpen, onClose, onSubmit }) {
+  useEscapeKey(isOpen, onClose);
   const [folderName, setFolderName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,18 +35,13 @@ export function NewFolderModal({ isOpen, onClose, onSubmit }) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
-              <FolderPlus className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-base">Folder baru</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-800">Folder baru</h3>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -87,6 +84,7 @@ export function NewFolderModal({ isOpen, onClose, onSubmit }) {
  * Modal Ganti Nama
  */
 export function RenameModal({ item, isOpen, onClose, onSubmit }) {
+  useEscapeKey(isOpen && !!item, onClose);
   const [newName, setNewName] = useState(item?.name || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -114,18 +112,13 @@ export function RenameModal({ item, isOpen, onClose, onSubmit }) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-sky-50 text-sky-600">
-              <Edit3 className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-base">Ganti nama</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-800">Ganti nama</h3>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -169,6 +162,7 @@ export function RenameModal({ item, isOpen, onClose, onSubmit }) {
  * (dan turunannya) tidak bisa dipilih sebagai tujuan.
  */
 export function MoveModal({ items, currentPath, isOpen, onClose, onSubmit }) {
+  useEscapeKey(isOpen && !!items?.length, onClose);
   const [browsePath, setBrowsePath] = useState(currentPath || '');
   const [folders, setFolders] = useState([]);
   const [loadingFolders, setLoadingFolders] = useState(false);
@@ -227,20 +221,15 @@ export function MoveModal({ items, currentPath, isOpen, onClose, onSubmit }) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
-              <FolderInput className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-base">
-              Pindahkan {items.length === 1 ? `"${items[0].name}"` : `${items.length} item`}
-            </h3>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-800">
+            Pindahkan {items.length === 1 ? `"${items[0].name}"` : `${items.length} item`}
+          </h3>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -253,7 +242,7 @@ export function MoveModal({ items, currentPath, isOpen, onClose, onSubmit }) {
               className="p-1 rounded-md hover:bg-slate-100 text-slate-500"
               title="Naik satu folder"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
           )}
           <button
@@ -306,7 +295,7 @@ export function MoveModal({ items, currentPath, isOpen, onClose, onSubmit }) {
                       <FolderIcon color={f.color} className={`w-4 h-4 shrink-0 ${disabled ? 'opacity-30' : ''}`} />
                       <span className="truncate">{f.name}</span>
                     </span>
-                    {!disabled && <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />}
+                    {!disabled && <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />}
                   </button>
                 );
               })}
@@ -345,6 +334,7 @@ export function MoveModal({ items, currentPath, isOpen, onClose, onSubmit }) {
  * Modal Ganti Password
  */
 export function ChangePasswordModal({ isOpen, onClose, onSubmit }) {
+  useEscapeKey(isOpen, onClose);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -388,18 +378,13 @@ export function ChangePasswordModal({ isOpen, onClose, onSubmit }) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-sky-50 text-sky-600">
-              <KeyRound className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-base">Ganti Password</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-800">Ganti Password</h3>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -466,23 +451,19 @@ export function ChangePasswordModal({ isOpen, onClose, onSubmit }) {
  * Modal Detail & Informasi Berkas/Folder
  */
 export function DetailModal({ item, isOpen, onClose }) {
+  useEscapeKey(isOpen && !!item, onClose);
   if (!isOpen || !item) return null;
 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-sky-50 text-sky-600">
-              <Info className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-base">Detail Item</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-800">Detail Item</h3>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HardDrive, Lock, Download, ChevronRight, FolderArchive, Eye, AlertCircle, Loader2 } from 'lucide-react';
+import { HardDrive, Lock, Download, ChevronRight, FolderArchive, Eye, AlertCircle, Loader2 } from '../icons.jsx';
 import { api } from '../api/client.js';
 import FileIcon, { formatFileSize, formatDate } from '../components/FileIcon.jsx';
 import Thumbnail from '../components/Thumbnail.jsx';
@@ -131,14 +131,14 @@ export default function PublicSharePage({ token }) {
                     onClick={() => setPreview(toItem({ ...info, path: '', type: 'file' }))}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 text-sm hover:bg-slate-50"
                   >
-                    <Eye className="w-4 h-4" /> Pratinjau
+                    <Eye className="w-5 h-5" /> Pratinjau
                   </button>
                   {canDownload ? (
                     <a
                       href={rawUrl({ publicToken: token, path: '' }, true)}
                       className="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-on-accent text-sm font-semibold"
                     >
-                      <Download className="w-4 h-4" /> Download
+                      <Download className="w-5 h-5" /> Download
                     </a>
                   ) : (
                     <span className="text-xs text-slate-400 self-center">
@@ -163,7 +163,7 @@ export default function PublicSharePage({ token }) {
                 </button>
                 {segments.map((seg, idx) => (
                   <React.Fragment key={idx}>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                    <ChevronRight className="w-5 h-5 text-slate-400" />
                     <button
                       onClick={() => load(segments.slice(0, idx + 1).join('/'))}
                       className={`px-2 py-1 rounded-lg hover:bg-slate-100 truncate max-w-[160px] ${idx === segments.length - 1 ? 'font-semibold text-slate-900' : 'text-slate-600'}`}
@@ -178,7 +178,7 @@ export default function PublicSharePage({ token }) {
                   href={zipUrl([{ publicToken: token, path }])}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-on-accent text-sm font-semibold shrink-0"
                 >
-                  <FolderArchive className="w-4 h-4" /> Download semua (zip)
+                  <FolderArchive className="w-5 h-5" /> Download semua (zip)
                 </a>
               ) : (
                 <span className="text-xs text-slate-400">{info.limitReached ? 'Batas download sudah tercapai' : 'Hanya bisa dilihat'}</span>

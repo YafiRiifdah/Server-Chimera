@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { X, Monitor, LogOut } from 'lucide-react';
+import useEscapeKey from '../hooks/useEscapeKey.js';
+import { X, Monitor, LogOut } from '../icons.jsx';
 import { api } from '../api/client.js';
 import { formatDate } from './FileIcon.jsx';
 
@@ -29,6 +30,7 @@ function describeAgent(ua = '') {
 
 /** Sesi aktif + "Keluar dari semua perangkat" (Master Prompt §5.1). */
 export default function SessionsModal({ isOpen, onClose, onLoggedOutEverywhere, showToast }) {
+  useEscapeKey(isOpen, onClose);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -70,13 +72,13 @@ export default function SessionsModal({ isOpen, onClose, onLoggedOutEverywhere, 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-slate-800 text-base">Sesi aktif</h3>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -84,7 +86,7 @@ export default function SessionsModal({ isOpen, onClose, onLoggedOutEverywhere, 
           {loading && <li className="px-3 py-4 text-xs text-slate-400">Memuat…</li>}
           {sessions.map((s) => (
             <li key={s.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
-              <Monitor className="w-4 h-4 text-slate-400 shrink-0" />
+              <Monitor className="w-5 h-5 text-slate-400 shrink-0" />
               <div className="min-w-0 flex-1">
                 <div className="font-medium text-slate-800 truncate">
                   {describeAgent(s.userAgent)}
@@ -111,7 +113,7 @@ export default function SessionsModal({ isOpen, onClose, onLoggedOutEverywhere, 
           onClick={logoutAll}
           className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-sm font-semibold"
         >
-          <LogOut className="w-4 h-4" /> Keluar dari semua perangkat
+          <LogOut className="w-5 h-5" /> Keluar dari semua perangkat
         </button>
       </div>
     </div>

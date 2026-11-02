@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MoreVertical, Star, ArrowUp, ArrowDown } from 'lucide-react';
+import { MoreVertical, Star, ArrowUp, ArrowDown } from '../icons.jsx';
 import { formatFileSize, formatDate } from './FileIcon.jsx';
 import Thumbnail from './Thumbnail.jsx';
 import { hasDragItems } from '../utils/dnd.js';
@@ -147,7 +147,7 @@ export default function FileList({
                     <span className="truncate" title={item.name}>
                       {item.name}
                     </span>
-                    {item.starred && <Star className="w-3.5 h-3.5 text-slate-500 fill-slate-500 shrink-0" />}
+                    {item.starred && <Star className="w-4 h-4 text-slate-500 fill-slate-500 shrink-0" />}
                   </div>
                 </td>
                 {extraHeader && (
@@ -171,7 +171,7 @@ export default function FileList({
                     title="Menu opsi"
                     aria-label="Menu opsi"
                   >
-                    <MoreVertical className="w-4 h-4" />
+                    <MoreVertical className="w-5 h-5" />
                   </button>
                 </td>
               </tr>

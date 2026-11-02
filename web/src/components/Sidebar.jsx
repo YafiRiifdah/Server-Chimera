@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   Camera,
   X
-} from 'lucide-react';
+} from '../icons.jsx';
 import { hasDragItems } from '../utils/dnd.js';
 
 /**
@@ -62,7 +62,9 @@ export default function Sidebar({
 
   const isRootActive = section === 'drive' && currentPath === '';
   const navClass = (active) =>
-    `flex items-center gap-3.5 px-4 py-2.5 rounded-full text-sm font-medium transition-colors w-full ${active ? 'bg-sky-100 text-sky-800' : 'text-slate-600 hover:bg-slate-100'}`;
+    `flex items-center gap-3.5 px-4 py-2.5 rounded-full text-sm font-medium transition-colors w-full ${
+      active ? 'bg-sky-100 text-sky-800' : 'text-slate-600 hover:bg-surface-hover hover:text-slate-800 active:bg-slate-200'
+    }`;
   const menuBtn = 'w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors';
   const pick = (fn) => () => {
     setNewDropdownOpen(false);
@@ -77,7 +79,9 @@ export default function Sidebar({
   return (
     <>
       {/* Latar drawer di layar kecil */}
-      {open && <div className="fixed inset-0 z-40 bg-black/40 md:hidden" onClick={onClose} aria-hidden="true" />}
+      {open && (
+        <div className="fixed inset-0 z-40 bg-black/40 md:hidden animate-in fade-in duration-200" onClick={onClose} aria-hidden="true" />
+      )}
 
       <aside
         className={`w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 select-none
@@ -115,18 +119,18 @@ export default function Sidebar({
                 className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-40 animate-in fade-in zoom-in-95 duration-100"
               >
                 <button role="menuitem" onClick={pick(onNewFolder)} className={menuBtn}>
-                  <FolderPlus className="w-4 h-4 text-slate-500" /> Folder baru
+                  <FolderPlus className="w-5 h-5 text-slate-500" /> Folder baru
                 </button>
                 <div className="border-t border-slate-100 my-1"></div>
                 <button role="menuitem" onClick={pick(onUploadFilesClick)} className={menuBtn}>
-                  <Upload className="w-4 h-4 text-slate-500" /> Upload file
+                  <Upload className="w-5 h-5 text-slate-500" /> Upload file
                 </button>
                 <button role="menuitem" onClick={pick(onUploadFolderClick)} className={`${menuBtn} hidden sm:flex`}>
-                  <FolderUp className="w-4 h-4 text-slate-500" /> Upload folder
+                  <FolderUp className="w-5 h-5 text-slate-500" /> Upload folder
                 </button>
                 {onCameraClick && (
                   <button role="menuitem" onClick={pick(onCameraClick)} className={`${menuBtn} sm:hidden`}>
-                    <Camera className="w-4 h-4 text-slate-500" /> Ambil foto / video
+                    <Camera className="w-5 h-5 text-slate-500" /> Ambil foto / video
                   </button>
                 )}
               </div>
@@ -152,7 +156,7 @@ export default function Sidebar({
               className={`${navClass(isRootActive)} ${dragOverRoot ? 'ring-2 ring-sky-500 bg-sky-50' : ''}`}
               aria-current={isRootActive ? 'page' : undefined}
             >
-              <HardDrive className={`w-4 h-4 ${isRootActive ? 'text-sky-700' : 'text-slate-500'}`} />
+              <HardDrive className={`w-5 h-5 ${isRootActive ? 'text-sky-700' : 'text-slate-500'}`} />
               <span>Drive Saya</span>
             </button>
 
@@ -176,7 +180,7 @@ export default function Sidebar({
 
         <div className="pt-4 border-t border-slate-100">
           <div className="flex items-center gap-2 mb-2">
-            <Cloud className="w-4 h-4 text-slate-500" />
+            <Cloud className="w-5 h-5 text-slate-500" />
             <span className="text-xs font-semibold text-slate-700">Penyimpanan</span>
           </div>
           <div

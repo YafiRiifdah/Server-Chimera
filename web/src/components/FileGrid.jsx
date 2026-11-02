@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MoreVertical, Star } from 'lucide-react';
+import { MoreVertical, Star } from '../icons.jsx';
 import FileIcon, { formatFileSize, formatDate } from './FileIcon.jsx';
 import Thumbnail from './Thumbnail.jsx';
 import { hasDragItems } from '../utils/dnd.js';
@@ -146,7 +146,7 @@ export default function FileGrid({
                     title="Menu opsi"
                     aria-label="Menu opsi"
                   >
-                    <MoreVertical className="w-4 h-4" />
+                    <MoreVertical className="w-5 h-5" />
                   </button>
                 </div>
               );
@@ -194,7 +194,7 @@ export default function FileGrid({
                       title="Menu opsi"
                       aria-label="Menu opsi"
                     >
-                      <MoreVertical className="w-4 h-4" />
+                      <MoreVertical className="w-5 h-5" />
                     </button>
                   </div>
                 </div>

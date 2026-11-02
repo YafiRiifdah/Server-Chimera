@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HardDrive, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
+import { HardDrive, Lock, User, AlertCircle, ArrowRight } from '../icons.jsx';
 import { api } from '../api/client.js';
 
 export default function LoginPage({ onLoginSuccess }) {
@@ -41,7 +41,7 @@ export default function LoginPage({ onLoginSuccess }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200/80 flex items-start gap-2.5 text-red-600 text-xs">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
@@ -49,7 +49,7 @@ export default function LoginPage({ onLoginSuccess }) {
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">Username</label>
             <div className="relative flex items-center">
-              <User className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+              <User className="w-5 h-5 text-slate-400 absolute left-3.5 pointer-events-none" />
               <input
                 type="text"
                 required
@@ -65,7 +65,7 @@ export default function LoginPage({ onLoginSuccess }) {
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">Password</label>
             <div className="relative flex items-center">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+              <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 pointer-events-none" />
               <input
                 type="password"
                 required
@@ -87,7 +87,7 @@ export default function LoginPage({ onLoginSuccess }) {
             ) : (
               <>
                 <span>Masuk</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-5 h-5" />
               </>
             )}
           </button>

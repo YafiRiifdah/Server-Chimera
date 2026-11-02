@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Info, X } from '../icons.jsx';
 
 /**
  * Notifikasi kecil di kiri bawah, pola Google Drive ("Dipindahkan ke Sampah", dsb.).
@@ -27,9 +27,9 @@ export function useToasts() {
 }
 
 const ICONS = {
-  success: <CheckCircle2 className="w-4 h-4 text-emerald-400" />,
-  error: <AlertCircle className="w-4 h-4 text-red-400" />,
-  info: <Info className="w-4 h-4 text-sky-400" />
+  success: <CheckCircle2 className="w-5 h-5 text-emerald-400" />,
+  error: <AlertCircle className="w-5 h-5 text-red-400" />,
+  info: <Info className="w-5 h-5 text-sky-400" />
 };
 
 export default function ToastContainer({ toasts, onDismiss }) {
@@ -49,7 +49,7 @@ export default function ToastContainer({ toasts, onDismiss }) {
             className="p-1 rounded-full hover:bg-white/10 text-[#94a3b8] hover:text-[#ffffff]"
             aria-label="Tutup notifikasi"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       ))}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Copy, Trash2, Link2, UserPlus, AlertTriangle } from 'lucide-react';
+import { Copy, Trash2, Link2, UserPlus, AlertTriangle } from '../icons.jsx';
 import { api } from '../api/client.js';
 import { copyText } from '../utils/clipboard.js';
 import { formatDate } from './FileIcon.jsx';
@@ -83,11 +83,11 @@ export default function LinksView({ showToast, onOpenPath }) {
               <td className="py-2.5 px-4 text-xs">
                 {s.type === 'link' ? (
                   <span className="inline-flex items-center gap-1 text-slate-600">
-                    <Link2 className="w-3.5 h-3.5" /> Siapa saja dengan link
+                    <Link2 className="w-4 h-4" /> Siapa saja dengan link
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-slate-600">
-                    <UserPlus className="w-3.5 h-3.5" /> @{s.targetUsername}
+                    <UserPlus className="w-4 h-4" /> @{s.targetUsername}
                   </span>
                 )}
               </td>
@@ -114,7 +114,7 @@ export default function LinksView({ showToast, onOpenPath }) {
                     className="p-1.5 rounded-full text-slate-500 hover:bg-slate-200/80 hover:text-slate-800"
                     title="Salin link"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-5 h-5" />
                   </button>
                 )}
                 <button
@@ -122,7 +122,7 @@ export default function LinksView({ showToast, onOpenPath }) {
                   className="p-1.5 rounded-full text-slate-500 hover:bg-red-50 hover:text-red-600"
                   title="Cabut"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-5 h-5" />
                 </button>
               </td>
             </tr>

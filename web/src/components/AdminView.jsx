@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Link2, Activity, HardDrive, RefreshCw, UserPlus, KeyRound, Ban, CheckCircle2, Trash2 } from 'lucide-react';
+import { Users, Link2, Activity, HardDrive, RefreshCw, UserPlus, KeyRound, Ban, CheckCircle2, Trash2 } from '../icons.jsx';
+import Select from './Select.jsx';
 import { api } from '../api/client.js';
 import { formatFileSize, formatDate } from './FileIcon.jsx';
 
@@ -101,7 +102,7 @@ export default function AdminView({ showToast }) {
           onClick={() => act(() => api.adminReindex(), 'Indeks dibangun ulang')}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-300 text-sm hover:bg-slate-100"
         >
-          <RefreshCw className="w-4 h-4" /> Pindai ulang indeks
+          <RefreshCw className="w-5 h-5" /> Pindai ulang indeks
         </button>
       </div>
 
@@ -130,7 +131,7 @@ export default function AdminView({ showToast }) {
               onClick={() => setShowAdd((v) => !v)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-600 hover:bg-sky-500 text-on-accent text-sm font-semibold"
             >
-              <UserPlus className="w-4 h-4" /> Tambah pengguna
+              <UserPlus className="w-5 h-5" /> Tambah pengguna
             </button>
           </div>
 
@@ -170,10 +171,16 @@ export default function AdminView({ showToast }) {
                 className={input}
               />
               <div className="flex gap-2">
-                <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className={`${input} flex-1`}>
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <Select
+                  value={form.role}
+                  onChange={(role) => setForm({ ...form, role })}
+                  options={[
+                    ['user', 'User'],
+                    ['admin', 'Admin']
+                  ]}
+                  aria-label="Peran"
+                  className="flex-1"
+                />
                 <button type="submit" className="px-4 py-2 rounded-xl bg-ink hover:bg-ink/90 text-on-accent text-sm font-semibold">
                   Simpan
                 </button>
@@ -238,14 +245,14 @@ export default function AdminView({ showToast }) {
                           className="p-1.5 rounded-full text-slate-500 hover:bg-slate-200/80"
                           title="Atur kuota"
                         >
-                          <HardDrive className="w-4 h-4" />
+                          <HardDrive className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => resetPassword(u)}
                           className="p-1.5 rounded-full text-slate-500 hover:bg-slate-200/80"
                           title="Reset password"
                         >
-                          <KeyRound className="w-4 h-4" />
+                          <KeyRound className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() =>
@@ -257,7 +264,7 @@ export default function AdminView({ showToast }) {
                           className={`p-1.5 rounded-full ${u.disabled ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-600 hover:bg-red-50'}`}
                           title={u.disabled ? 'Aktifkan' : 'Nonaktifkan'}
                         >
-                          {u.disabled ? <CheckCircle2 className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                          {u.disabled ? <CheckCircle2 className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
                         </button>
                       </td>
                     </tr>
@@ -302,7 +309,7 @@ export default function AdminView({ showToast }) {
                       className="p-1.5 rounded-full text-slate-500 hover:bg-red-50 hover:text-red-600"
                       title="Cabut"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </td>
                 </tr>
@@ -321,14 +328,13 @@ export default function AdminView({ showToast }) {
 
       {tab === 'activity' && (
         <div className="space-y-3">
-          <select value={activityUser} onChange={(e) => setActivityUser(e.target.value)} className={input}>
-            <option value="">Semua pengguna</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.username}>
-                @{u.username}
-              </option>
-            ))}
-          </select>
+          <Select
+            value={activityUser}
+            onChange={setActivityUser}
+            options={[['', 'Semua pengguna'], ...users.map((u) => [u.username, `@${u.username}`])]}
+            aria-label="Pengguna"
+            className="w-full sm:w-64"
+          />
           <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50/70 border-b border-slate-200 font-semibold text-slate-500 uppercase tracking-wider">

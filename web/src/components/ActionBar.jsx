@@ -16,7 +16,7 @@ import {
   RotateCcw,
   Flame,
   UserPlus
-} from 'lucide-react';
+} from '../icons.jsx';
 import ColorPalette from './ColorPalette.jsx';
 
 /**
@@ -99,7 +99,7 @@ export default function ActionBar({
         title="Batal pilih (Esc)"
         aria-label="Batal pilih (Esc)"
       >
-        <X className="w-4 h-4" />
+        <X className="w-5 h-5" />
       </button>
       <span className="text-sm font-medium text-slate-800 px-2 shrink-0">{count} dipilih</span>
       <div className="w-[1px] h-4 bg-slate-300/80 mx-1 shrink-0"></div>
@@ -111,21 +111,21 @@ export default function ActionBar({
             className="flex items-center gap-1.5 px-3 h-8 rounded-full hover:bg-slate-200/80 text-sm font-medium"
             title="Pulihkan"
           >
-            <RotateCcw className="w-4 h-4" /> <span>Pulihkan</span>
+            <RotateCcw className="w-5 h-5" /> <span>Pulihkan</span>
           </button>
           <button
             onClick={() => onDeleteForever(selectedItems)}
             className="flex items-center gap-1.5 px-3 h-8 rounded-full hover:bg-red-100 text-red-600 text-sm font-medium"
             title="Hapus permanen"
           >
-            <Flame className="w-4 h-4" /> <span>Hapus permanen</span>
+            <Flame className="w-5 h-5" /> <span>Hapus permanen</span>
           </button>
         </>
       ) : (
         <>
           {own && singleItem && (
             <button onClick={() => onShare(singleItem)} className={iconBtn} title="Bagikan">
-              <UserPlus className="w-4 h-4" />
+              <UserPlus className="w-5 h-5" />
             </button>
           )}
           <button
@@ -133,11 +133,11 @@ export default function ActionBar({
             className={iconBtn}
             title={count > 1 || singleItem?.type === 'folder' ? 'Download (zip)' : 'Download'}
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-5 h-5" />
           </button>
           {own && (
             <button onClick={onMove} className={iconBtn} title="Pindahkan" aria-label="Pindahkan">
-              <FolderInput className="w-4 h-4" />
+              <FolderInput className="w-5 h-5" />
             </button>
           )}
           {own && (
@@ -146,7 +146,7 @@ export default function ActionBar({
               className={iconBtn}
               title={allStarred ? 'Hapus dari Berbintang' : 'Tambahkan ke Berbintang'}
             >
-              {allStarred ? <StarOff className="w-4 h-4" /> : <Star className="w-4 h-4" />}
+              {allStarred ? <StarOff className="w-5 h-5" /> : <Star className="w-5 h-5" />}
             </button>
           )}
           {(own || canEdit) && (
@@ -156,12 +156,12 @@ export default function ActionBar({
               title="Hapus"
               aria-label="Hapus"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-5 h-5" />
             </button>
           )}
           {own && singleItem && (
             <button onClick={() => onCopyLink(singleItem)} className={iconBtn} title="Salin link">
-              <Link2 className="w-4 h-4" />
+              <Link2 className="w-5 h-5" />
             </button>
           )}
 
@@ -180,7 +180,7 @@ export default function ActionBar({
               aria-haspopup="menu"
               aria-expanded={moreOpen}
             >
-              <MoreVertical className="w-4 h-4" />
+              <MoreVertical className="w-5 h-5" />
             </button>
 
             {moreOpen && (
@@ -199,7 +199,7 @@ export default function ActionBar({
                     }}
                     className={menuItem}
                   >
-                    <ExternalLink className="w-4 h-4 text-slate-400" /> <span>Buka</span>
+                    <ExternalLink className="w-5 h-5 text-slate-400" /> <span>Buka</span>
                   </button>
                 )}
                 {singleItem && (own || canEdit) && (
@@ -210,14 +210,14 @@ export default function ActionBar({
                     }}
                     className={menuItem}
                   >
-                    <Edit3 className="w-4 h-4 text-slate-400" /> <span>Ganti nama</span>
+                    <Edit3 className="w-5 h-5 text-slate-400" /> <span>Ganti nama</span>
                   </button>
                 )}
                 {own && singleItem && singleItem.type === 'folder' && (
                   <div className="relative" ref={colorRef}>
                     <button onClick={() => setColorOpen((v) => !v)} className={menuItem}>
-                      <Palette className="w-4 h-4 text-slate-400" /> <span className="flex-1">Ubah warna</span>
-                      <ChevronRight className={`w-3.5 h-3.5 text-slate-400 transition-transform ${colorOpen ? 'rotate-90' : ''}`} />
+                      <Palette className="w-5 h-5 text-slate-400" /> <span className="flex-1">Ubah warna</span>
+                      <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${colorOpen ? 'rotate-90' : ''}`} />
                     </button>
                     {colorOpen && (
                       <div className="px-3 py-2 bg-slate-50 rounded-xl m-2 border border-slate-100">
@@ -241,7 +241,7 @@ export default function ActionBar({
                     }}
                     className={menuItem}
                   >
-                    <Info className="w-4 h-4 text-slate-400" /> <span>Detail</span>
+                    <Info className="w-5 h-5 text-slate-400" /> <span>Detail</span>
                   </button>
                 )}
                 {(own || canEdit) && (
@@ -254,7 +254,7 @@ export default function ActionBar({
                       }}
                       className="w-full px-4 py-2 text-left hover:bg-red-50 text-red-600 flex items-center gap-3 transition-colors text-xs"
                     >
-                      <Trash2 className="w-4 h-4 text-red-500" /> <span>Hapus</span>
+                      <Trash2 className="w-5 h-5 text-red-500" /> <span>Hapus</span>
                     </button>
                   </>
                 )}

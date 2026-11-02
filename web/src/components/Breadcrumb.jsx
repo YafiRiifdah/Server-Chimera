@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown } from '../icons.jsx';
 import { hasDragItems } from '../utils/dnd.js';
 
 /**
@@ -65,7 +65,7 @@ export default function Breadcrumb({ title, root, currentPath, onNavigate, onDro
           className={crumb(true, dragOverTarget === '')}
         >
           <span>Drive Saya</span>
-          {segments.length === 0 && <ChevronDown className="w-4 h-4 text-slate-600 mt-0.5" />}
+          {segments.length === 0 && <ChevronDown className="w-5 h-5 text-slate-600 mt-0.5" />}
         </button>
       )}
 
@@ -84,7 +84,7 @@ export default function Breadcrumb({ title, root, currentPath, onNavigate, onDro
               title={isLast && !root ? 'Menu folder ini' : seg}
             >
               <span className="truncate">{seg}</span>
-              {isLast && !root && <ChevronDown className="w-4 h-4 text-slate-600 mt-0.5" />}
+              {isLast && !root && <ChevronDown className="w-5 h-5 text-slate-600 mt-0.5" />}
             </button>
           </React.Fragment>
         );

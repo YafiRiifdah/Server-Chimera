@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 // Warna netral (white, slate, sky) dipetakan ke variabel CSS agar tema gelap mengikuti sistem
 // tanpa menulis varian dark: di setiap kelas (lihat src/styles/index.css).
+import animate from 'tailwindcss-animate';
+
 const v = (name) => `rgb(var(--c-${name}) / <alpha-value>)`;
 const scale = (prefix) =>
   Object.fromEntries(['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'].map((k) => [k, v(`${prefix}-${k}`)]));
@@ -24,5 +26,5 @@ export default {
       }
     }
   },
-  plugins: []
+  plugins: [animate]
 };

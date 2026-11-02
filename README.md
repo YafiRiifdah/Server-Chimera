@@ -25,7 +25,7 @@ Chimera adalah aplikasi penyimpanan file pribadi (seperti Google Drive / Nextclo
    - Klik 1x = pilih item; Ctrl+klik tambah/kurangi, Shift+klik rentang, Ctrl+A semua.
    - Klik 2x = buka (masuk ke dalam folder atau buka pratinjau berkas).
    - Buat folder baru, ganti nama, dan pindahkan lewat dialog pemilih folder yang bisa dijelajahi, atau tarik ke folder / breadcrumb / "Drive Saya".
-   - Hapus langsung memindahkan ke Sampah (`.trash`) dengan notifikasi, tanpa dialog konfirmasi (pola Google Drive).
+   - Hapus memindahkan ke Sampah (`.trash`) setelah dialog konfirmasi singkat, dengan notifikasi; bisa dipulihkan selama 30 hari.
    - Panel Detail (nama, tipe, ukuran, lokasi, diubah).
    - Ikon folder datar ala Google Drive dan **Ubah warna** folder (palet 25 warna) lewat klik kanan atau toolbar; warna tersimpan per pengguna di SQLite dan ikut saat folder diganti nama/dipindahkan.
    - Unduh langsung dengan dukungan HTTP Range (seekable audio/video streaming).

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, LogOut, KeyRound, HardDrive, X, Monitor, ShieldCheck, Menu } from 'lucide-react';
+import { Search, LogOut, KeyRound, HardDrive, X, Monitor, ShieldCheck, Menu } from '../icons.jsx';
 
 /**
  * Bar atas: tombol menu (layar kecil), logo, kotak pencarian global, menu profil.
@@ -75,7 +75,7 @@ export default function Topbar({
               title="Hapus pencarian"
               aria-label="Hapus pencarian"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>
@@ -115,7 +115,7 @@ export default function Topbar({
                   }}
                   className={menuItem}
                 >
-                  <KeyRound className="w-4 h-4 text-slate-400" /> Ganti Password
+                  <KeyRound className="w-5 h-5 text-slate-400" /> Ganti Password
                 </button>
                 <button
                   role="menuitem"
@@ -125,7 +125,7 @@ export default function Topbar({
                   }}
                   className={menuItem}
                 >
-                  <Monitor className="w-4 h-4 text-slate-400" /> Sesi aktif
+                  <Monitor className="w-5 h-5 text-slate-400" /> Sesi aktif
                 </button>
                 {user?.role === 'admin' && (
                   <button
@@ -136,7 +136,7 @@ export default function Topbar({
                     }}
                     className={menuItem}
                   >
-                    <ShieldCheck className="w-4 h-4 text-slate-400" /> Admin
+                    <ShieldCheck className="w-5 h-5 text-slate-400" /> Admin
                   </button>
                 )}
                 <button
@@ -147,7 +147,7 @@ export default function Topbar({
                   }}
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors"
                 >
-                  <LogOut className="w-4 h-4 text-red-500" /> Keluar
+                  <LogOut className="w-5 h-5 text-red-500" /> Keluar
                 </button>
               </div>
             </div>

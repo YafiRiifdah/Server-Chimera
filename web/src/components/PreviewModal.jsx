@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Download, ChevronLeft, ChevronRight, ExternalLink, FileQuestion, FileText, Music, ZoomIn, ZoomOut } from 'lucide-react';
+import { X, Download, ChevronLeft, ChevronRight, ExternalLink, FileQuestion, FileText, Music, ZoomIn, ZoomOut } from '../icons.jsx';
 import { rawUrl as rawUrlFor, thumbUrl } from '../utils/urls.js';
 import { getFileCategory, formatFileSize } from './FileIcon.jsx';
 
@@ -186,7 +186,7 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
                 title="Perkecil (-)"
                 aria-label="Perkecil"
               >
-                <ZoomOut className="w-4 h-4" />
+                <ZoomOut className="w-5 h-5" />
               </button>
               <span className="text-xs text-[#94a3b8] w-10 text-center hidden sm:inline">{Math.round(zoom * 100)}%</span>
               <button
@@ -195,7 +195,7 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
                 title="Perbesar (+)"
                 aria-label="Perbesar"
               >
-                <ZoomIn className="w-4 h-4" />
+                <ZoomIn className="w-5 h-5" />
               </button>
             </>
           )}
@@ -207,7 +207,7 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
             title="Buka di tab baru"
             aria-label="Buka di tab baru"
           >
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="w-5 h-5" />
           </a>
           {canDownload && (
             <a
@@ -217,7 +217,7 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
               title="Download"
               aria-label="Download"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-5 h-5" />
             </a>
           )}
           <button
@@ -313,7 +313,7 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
                   download={activeFile.name}
                   className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-on-accent font-medium px-5 py-2.5 rounded-xl text-sm transition-all shadow-md"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-5 h-5" />
                   <span>Download file</span>
                 </a>
               )}

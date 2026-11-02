@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check } from '../icons.jsx';
 import { FOLDER_COLORS, DEFAULT_FOLDER_COLOR } from '../utils/folderColors.js';
 
 /**
@@ -26,7 +26,7 @@ export default function ColorPalette({ value, onSelect }) {
             className="w-6 h-6 rounded-full flex items-center justify-center ring-offset-1 hover:ring-2 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
             style={{ backgroundColor: c.hex }}
           >
-            {isActive && <Check className="w-3.5 h-3.5 text-on-accent drop-shadow" strokeWidth={3} />}
+            {isActive && <Check className="w-4 h-4 text-on-accent drop-shadow" />}
           </button>
         );
       })}

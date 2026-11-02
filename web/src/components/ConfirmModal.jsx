@@ -1,27 +1,25 @@
 import React from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import useEscapeKey from '../hooks/useEscapeKey.js';
+import { X } from '../icons.jsx';
 
 /**
- * Konfirmasi untuk tindakan yang tidak bisa dibatalkan (hapus permanen, kosongkan Sampah).
- * Hapus biasa TIDAK memakai ini karena bisa dipulihkan dari Sampah.
+ * Dialog konfirmasi. tone='danger' (merah) untuk tindakan yang tidak bisa dibatalkan
+ * (hapus permanen, kosongkan Sampah); tone='primary' (biru) untuk pindah ke Sampah.
  */
-export default function ConfirmModal({ open, title, message, confirmLabel = 'Hapus permanen', onConfirm, onCancel }) {
+export default function ConfirmModal({ open, title, message, confirmLabel = 'Hapus permanen', tone = 'danger', onConfirm, onCancel }) {
+  useEscapeKey(open, onCancel);
   if (!open) return null;
+  const danger = tone === 'danger';
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-red-50 text-red-600">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-base">{title}</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
           <button onClick={onCancel} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
         <p className="text-sm text-slate-600 mb-5">{message}</p>
@@ -37,7 +35,9 @@ export default function ConfirmModal({ open, title, message, confirmLabel = 'Hap
             type="button"
             onClick={onConfirm}
             autoFocus
-            className="px-5 py-2 rounded-xl text-xs font-semibold bg-red-600 hover:bg-red-500 text-on-accent shadow-sm transition-all"
+            className={`px-5 py-2 rounded-xl text-xs font-semibold text-on-accent shadow-sm transition-all ${
+              danger ? 'bg-red-600 hover:bg-red-500' : 'bg-sky-600 hover:bg-sky-500'
+            }`}
           >
             {confirmLabel}
           </button>

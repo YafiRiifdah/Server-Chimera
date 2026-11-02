@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { X, Info, Link2, UserPlus, Activity } from 'lucide-react';
+import useEscapeKey from '../hooks/useEscapeKey.js';
+import { X, Link2, UserPlus, Activity } from '../icons.jsx';
 import { api } from '../api/client.js';
 import FileIcon, { formatFileSize, formatDate } from './FileIcon.jsx';
 import Thumbnail from './Thumbnail.jsx';
@@ -25,6 +26,7 @@ const ACTION_LABEL = {
  * siapa saja yang punya akses, aktivitas terakhir. Detail server hanya untuk item milik sendiri.
  */
 export default function DetailPanel({ item, isOpen, onClose }) {
+  useEscapeKey(isOpen && !!item, onClose);
   const [stat, setStat] = useState(null);
 
   useEffect(() => {
@@ -49,18 +51,13 @@ export default function DetailPanel({ item, isOpen, onClose }) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-sky-50 text-sky-600">
-              <Info className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-base">Detail</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-800">Detail</h3>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100" title="Tutup" aria-label="Tutup">
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -103,11 +100,7 @@ export default function DetailPanel({ item, isOpen, onClose }) {
                   <ul className="space-y-1">
                     {stat.shares.map((s) => (
                       <li key={s.id} className="flex items-center gap-1.5 text-slate-700">
-                        {s.type === 'link' ? (
-                          <Link2 className="w-3.5 h-3.5 text-slate-400" />
-                        ) : (
-                          <UserPlus className="w-3.5 h-3.5 text-slate-400" />
-                        )}
+                        {s.type === 'link' ? <Link2 className="w-4 h-4 text-slate-400" /> : <UserPlus className="w-4 h-4 text-slate-400" />}
                         {s.type === 'link'
                           ? `Siapa saja dengan link (${s.permission === 'view' ? 'lihat' : 'lihat & download'})`
                           : `@${s.targetUsername} (${s.permission === 'edit' ? 'edit' : 'lihat'})`}
@@ -119,7 +112,7 @@ export default function DetailPanel({ item, isOpen, onClose }) {
               </div>
               <div>
                 <span className="text-slate-400 font-medium block mb-1 flex items-center gap-1">
-                  <Activity className="w-3.5 h-3.5" /> Aktivitas terakhir
+                  <Activity className="w-4 h-4" /> Aktivitas terakhir
                 </span>
                 {stat.activity.length === 0 ? (
                   <span className="text-slate-500">Belum ada catatan</span>

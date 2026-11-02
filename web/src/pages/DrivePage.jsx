@@ -9,6 +9,7 @@ import ContextMenu from '../components/ContextMenu.jsx';
 import PreviewModal from '../components/PreviewModal.jsx';
 import UploadProgressWidget from '../components/UploadProgressWidget.jsx';
 import SearchFilters from '../components/SearchFilters.jsx';
+import SortMenu from '../components/SortMenu.jsx';
 import ConflictModal from '../components/ConflictModal.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import ShareModal from '../components/ShareModal.jsx';
@@ -34,9 +35,9 @@ import { uploadEntry, uploadSharedEntry, discardSession, CHUNKED_THRESHOLD } fro
 import { copyText } from '../utils/clipboard.js';
 import { rawUrl, zipUrl } from '../utils/urls.js';
 import { isTouchDevice } from '../utils/touch.js';
-import { SORT_KEYS, loadSort, saveSort, sortItems } from '../utils/sort.js';
+import { loadSort, saveSort, sortItems } from '../utils/sort.js';
 import { gridColumns } from '../hooks/useVirtualRows.js';
-import { UploadCloud, List, LayoutGrid, Info, Trash2, Users, ArrowUpDown } from 'lucide-react';
+import { UploadCloud, List, LayoutGrid, Info, Trash2, Users } from '../icons.jsx';
 
 // Upload bersamaan dibatasi 3 file (Master Prompt §5.4)
 const MAX_CONCURRENT_UPLOADS = 3;
@@ -254,12 +255,19 @@ export default function DrivePage({ user, onLogout }) {
     loadUsage();
   }, [loc, section, loadItems, loadUsage]);
 
+  // Throttle (bukan debounce): saat ribuan file kecil selesai beruntun, daftar tetap
+  // menyegar paling lambat tiap 2 detik, dan sekali lagi setelah penyelesaian terakhir.
+  const lastRefreshRef = useRef(0);
   const refreshSoon = useCallback(() => {
-    clearTimeout(refreshTimerRef.current);
+    const REFRESH_EVERY = 2000;
+    if (refreshTimerRef.current) return; // sudah dijadwalkan
+    const wait = Math.max(300, REFRESH_EVERY - (Date.now() - lastRefreshRef.current));
     refreshTimerRef.current = setTimeout(() => {
+      refreshTimerRef.current = null;
+      lastRefreshRef.current = Date.now();
       loadItems();
       loadUsage();
-    }, 400);
+    }, wait);
   }, [loadItems, loadUsage]);
 
   const uploadTarget = () => {
@@ -602,24 +610,34 @@ export default function DrivePage({ user, onLogout }) {
     else triggerDownload(zipUrl(arr));
   };
 
-  const handleDeleteSelected = async (targetItems = null) => {
+  const handleDeleteSelected = (targetItems = null) => {
     const list = targetItems || selectedItemsList;
     if (list.length === 0) return;
-    try {
-      const res =
-        mode === 'shared'
-          ? await api.sharedDelete(
-              shareId,
-              list.map((i) => i.path)
-            )
-          : await api.deleteItems(list.map((i) => i.path));
-      setSelectedKeys(new Set());
-      showToast(`${res.deleted} item dipindahkan ke Sampah${mode === 'shared' ? ' pemilik' : ''}`, 'success');
-      loadItems();
-      loadUsage();
-    } catch (err) {
-      showToast(`Gagal menghapus: ${err.message}`, 'error');
-    }
+    const label = list.length === 1 ? `"${list[0].name}"` : `${list.length} item`;
+    setConfirmState({
+      title: 'Pindahkan ke Sampah?',
+      message: `${label} akan dipindahkan ke Sampah${mode === 'shared' ? ' pemilik' : ''} dan bisa dipulihkan dalam 30 hari.`,
+      confirmLabel: 'Pindahkan ke Sampah',
+      tone: 'primary',
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const res =
+            mode === 'shared'
+              ? await api.sharedDelete(
+                  shareId,
+                  list.map((i) => i.path)
+                )
+              : await api.deleteItems(list.map((i) => i.path));
+          setSelectedKeys(new Set());
+          showToast(`${res.deleted} item dipindahkan ke Sampah${mode === 'shared' ? ' pemilik' : ''}`, 'success');
+          loadItems();
+          loadUsage();
+        } catch (err) {
+          showToast(`Gagal menghapus: ${err.message}`, 'error');
+        }
+      }
+    });
   };
 
   const handleRestore = async (list) => {
@@ -970,36 +988,18 @@ export default function DrivePage({ user, onLogout }) {
                   onClick={handleEmptyTrash}
                   className="flex items-center gap-1.5 px-3 h-9 rounded-full border border-slate-300 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Kosongkan sampah</span>
+                  <Trash2 className="w-5 h-5" /> <span className="hidden sm:inline">Kosongkan sampah</span>
                 </button>
               )}
               {mode === 'shared' && shareInfo && (
                 <span className="text-xs text-slate-500 hidden md:inline-flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5" /> dari @{shareInfo.ownerUsername} • {canEdit ? 'bisa edit' : 'hanya lihat'}
+                  <Users className="w-4 h-4" /> dari @{shareInfo.ownerUsername} • {canEdit ? 'bisa edit' : 'hanya lihat'}
                 </span>
               )}
               {showListChrome && (
                 <>
                   {/* Urutkan (di tampilan daftar, judul kolom juga bisa diklik) */}
-                  <div className="relative hidden sm:inline-flex items-center">
-                    <ArrowUpDown className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 pointer-events-none" />
-                    <select
-                      value={`${sort.key}:${sort.dir}`}
-                      onChange={(e) => {
-                        const [key, dir] = e.target.value.split(':');
-                        setSort({ key, dir });
-                      }}
-                      aria-label="Urutkan"
-                      className="appearance-none pl-8 pr-3 h-9 rounded-full bg-surface border border-slate-200/60 text-xs text-slate-700 cursor-pointer focus:outline-none"
-                    >
-                      {SORT_KEYS.map(([k, label]) => (
-                        <React.Fragment key={k}>
-                          <option value={`${k}:asc`}>{label} ↑</option>
-                          <option value={`${k}:desc`}>{label} ↓</option>
-                        </React.Fragment>
-                      ))}
-                    </select>
-                  </div>
+                  <SortMenu sort={sort} onChange={setSort} />
                   <div className="flex items-center bg-surface p-0.5 rounded-full border border-slate-200/60">
                     <button
                       onClick={() => setViewMode('list')}
@@ -1008,7 +1008,7 @@ export default function DrivePage({ user, onLogout }) {
                       aria-pressed={viewMode === 'list'}
                       className={`p-1.5 px-2.5 rounded-full flex items-center gap-1 transition-all ${viewMode === 'list' ? 'bg-selected text-sky-950 font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
                     >
-                      <List className="w-4 h-4" />
+                      <List className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => setViewMode('grid')}
@@ -1017,7 +1017,7 @@ export default function DrivePage({ user, onLogout }) {
                       aria-pressed={viewMode === 'grid'}
                       className={`p-1.5 px-2.5 rounded-full flex items-center gap-1 transition-all ${viewMode === 'grid' ? 'bg-selected text-sky-950 font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
                     >
-                      <LayoutGrid className="w-4 h-4" />
+                      <LayoutGrid className="w-5 h-5" />
                     </button>
                   </div>
                   <button
@@ -1073,7 +1073,7 @@ export default function DrivePage({ user, onLogout }) {
             </div>
           )}
 
-          <div className="flex-1">
+          <div key={`${section}|${shareId || ''}|${currentPath}|${query.q || ''}`} className="flex-1 chimera-page-enter">
             {section === 'links' ? (
               <LinksView showToast={showToast} onOpenPath={(p) => navigateTo(parentOf(p))} />
             ) : section === 'admin' ? (
@@ -1171,6 +1171,7 @@ export default function DrivePage({ user, onLogout }) {
         title={confirmState?.title}
         message={confirmState?.message}
         confirmLabel={confirmState?.confirmLabel}
+        tone={confirmState?.tone}
         onConfirm={confirmState?.onConfirm}
         onCancel={() => setConfirmState(null)}
       />

@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronDown, X } from 'lucide-react';
+import { X } from '../icons.jsx';
+import Select from './Select.jsx';
 
 /**
  * Chip filter hasil pencarian (pola Google Drive): Jenis dan Diubah.
@@ -21,37 +22,27 @@ const MODIFIED = [
 
 function Chip({ label, value, options, onChange }) {
   const active = value !== '';
-  const current = options.find(([v]) => v === value)?.[1] || label;
   return (
     <div className="relative inline-flex items-center">
-      <select
+      <Select
+        variant="chip"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
+        options={options.map(([v, l]) => [v, v === '' ? label : l])}
         aria-label={label}
-        className={`appearance-none pl-3 pr-8 py-1.5 rounded-full text-xs font-medium border cursor-pointer outline-none focus:ring-2 focus:ring-sky-500/30 ${
-          active ? 'bg-selected border-selected text-sky-950' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
-        }`}
-      >
-        {options.map(([v, l]) => (
-          <option key={v} value={v}>
-            {v === '' ? label : l}
-          </option>
-        ))}
-      </select>
-      <span className="pointer-events-none absolute right-2.5 text-slate-500">
-        {active ? (
-          <X
-            className="w-3.5 h-3.5 pointer-events-auto cursor-pointer"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              onChange('');
-            }}
-          />
-        ) : (
-          <ChevronDown className="w-3.5 h-3.5" />
-        )}
-      </span>
-      <span className="sr-only">{current}</span>
+        className={`${active ? 'bg-selected border-selected text-sky-950 pr-8' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'}`}
+      />
+      {active && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          className="absolute right-2 p-0.5 rounded-full text-slate-600 hover:bg-sky-200/60"
+          title={`Hapus filter ${label.toLowerCase()}`}
+          aria-label={`Hapus filter ${label.toLowerCase()}`}
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 }

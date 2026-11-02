@@ -1,6 +1,6 @@
 import React from 'react';
 import FolderIcon from './FolderIcon.jsx';
-import { FileText, Image as ImageIcon, Video as VideoIcon, Music, FileCode, Archive, File } from 'lucide-react';
+import { FileText, FilePdf, Image as ImageIcon, Video as VideoIcon, Music, FileCode, Archive, File } from '../icons.jsx';
 
 export function getFileCategory(name, mime = '') {
   const ext = (name.split('.').pop() || '').toLowerCase();
@@ -65,7 +65,7 @@ export default function FileIcon({ item, className = 'w-5 h-5' }) {
     case 'audio':
       return <Music className={`${className} text-purple-600`} />;
     case 'pdf':
-      return <FileText className={`${className} text-red-600`} />;
+      return <FilePdf className={`${className} text-red-600`} />;
     case 'archive':
       return <Archive className={`${className} text-orange-500`} />;
     case 'code':

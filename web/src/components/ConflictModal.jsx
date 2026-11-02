@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import useEscapeKey from '../hooks/useEscapeKey.js';
+import { X } from '../icons.jsx';
 
 /**
  * Dialog konflik nama saat upload (Master Prompt §5.4):
@@ -7,6 +8,7 @@ import { AlertTriangle, X } from 'lucide-react';
  * props.conflicts: daftar nama; onResolve(policy, applyAll) dipanggil per keputusan.
  */
 export default function ConflictModal({ conflict, remaining, onResolve, onCancel }) {
+  useEscapeKey(!!conflict, onCancel);
   const [applyAll, setApplyAll] = useState(false);
   if (!conflict) return null;
 
@@ -15,23 +17,18 @@ export default function ConflictModal({ conflict, remaining, onResolve, onCancel
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-base">File sudah ada</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-800">File sudah ada</h3>
           <button
             onClick={onCancel}
             className="p-1 rounded-full text-slate-400 hover:bg-slate-100"
             title="Batalkan upload"
             aria-label="Batalkan upload"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 

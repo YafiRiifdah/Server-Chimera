@@ -4,7 +4,7 @@ import DrivePage from './pages/DrivePage.jsx';
 import PublicSharePage from './pages/PublicSharePage.jsx';
 import { api } from './api/client.js';
 import { publicTokenFromLocation } from './utils/router.js';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from './icons.jsx';
 
 export default function App() {
   const [user, setUser] = useState(null);

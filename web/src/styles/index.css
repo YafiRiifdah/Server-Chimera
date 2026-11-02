@@ -118,6 +118,47 @@
   background: var(--scrollbar-thumb-hover);
 }
 
+/* Animasi dasar: tombol/tautan bertransisi halus, tekan sedikit mengecil */
+@layer base {
+  button,
+  a,
+  [role='button'] {
+    transition-property: background-color, border-color, color, transform, box-shadow, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+  button:not(:disabled):active,
+  [role='button']:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Transisi perpindahan halaman/folder */
+.chimera-page-enter {
+  animation: chimera-page-in 220ms ease-out both;
+}
+@keyframes chimera-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hormati pengguna yang mematikan animasi di sistem */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Kotak drag-select */
 .chimera-marquee {
   position: fixed;
