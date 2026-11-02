@@ -23,6 +23,7 @@ for (const name of fs.readdirSync(os.tmpdir())) {
 
 const base = fs.mkdtempSync(path.join(os.tmpdir(), 'chimera-test-'));
 
+process.env.CHIMERA_TEST = '1'; // index.js tidak membuka port saat diimpor tes
 process.env.STORAGE_ROOT = path.join(base, 'storage');
 process.env.DATA_DIR = path.join(base, 'data');
 

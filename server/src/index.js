@@ -91,8 +91,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Jalankan server jika dieksekusi langsung
-if (process.argv[1] === __filename) {
+// Jalankan server kecuali saat diimpor oleh tes (tests/setup.js menyetel CHIMERA_TEST=1).
+// Tidak memakai cek process.argv agar tetap mendengarkan saat dijalankan PM2 (fork/cluster).
+if (!process.env.CHIMERA_TEST) {
   // Tugas pemeliharaan hanya saat berjalan sebagai server (bukan saat diimpor tes)
   startMaintenanceSchedule();
   app.listen(PORT, '0.0.0.0', () => {
