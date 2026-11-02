@@ -1,0 +1,30 @@
+{
+  "name": "chimera",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,WEB\" -c \"blue,magenta\" \"npm run dev:server\" \"npm run dev:web\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:web": "npm run dev --prefix web",
+    "server": "npm run dev --prefix server",
+    "web": "npm run dev --prefix web",
+    "build:web": "npm run build --prefix web",
+    "start": "node server/src/index.js",
+    "test": "npm run test --prefix server",
+    "reindex": "npm run reindex --prefix server",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"server/**/*.js\" \"web/src/**/*.{js,jsx}\" \"shared/**/*.json\"",
+    "format:check": "prettier --check \"server/**/*.js\" \"web/src/**/*.{js,jsx}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "concurrently": "^9.2.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
+    "prettier": "^3.9.10"
+  }
+}

@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tema terang/gelap mengikuti sistem (Master Prompt §9).
+ * Nilai = triplet RGB untuk `rgb(var(--c-x) / alpha)` di tailwind.config.js.
+ * Terang memakai palet Tailwind asli; gelap membalik skala slate/sky.
+ */
+:root {
+  color-scheme: light dark;
+
+  --c-white: 255 255 255;
+  --c-slate-50: 248 250 252;
+  --c-slate-100: 241 245 249;
+  --c-slate-200: 226 232 240;
+  --c-slate-300: 203 213 225;
+  --c-slate-400: 148 163 184;
+  --c-slate-500: 100 116 139;
+  --c-slate-600: 71 85 105;
+  --c-slate-700: 51 65 85;
+  --c-slate-800: 30 41 59;
+  --c-slate-900: 15 23 42;
+  --c-slate-950: 2 6 23;
+
+  --c-sky-50: 240 249 255;
+  --c-sky-100: 224 242 254;
+  --c-sky-200: 186 230 253;
+  --c-sky-300: 125 211 252;
+  --c-sky-400: 56 189 248;
+  --c-sky-500: 14 165 233;
+  --c-sky-600: 2 132 199;
+  --c-sky-700: 3 105 161;
+  --c-sky-800: 7 89 133;
+  --c-sky-900: 12 74 110;
+  --c-sky-950: 8 47 73;
+
+  --c-surface: 240 244 249;
+  --c-surface-hover: 233 237 244;
+  --c-selected: 194 231 255;
+  --c-toolbar: 237 242 252;
+
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-white: 30 41 59;
+    --c-slate-50: 15 23 42;
+    --c-slate-100: 30 41 59;
+    --c-slate-200: 51 65 85;
+    --c-slate-300: 71 85 105;
+    --c-slate-400: 148 163 184;
+    --c-slate-500: 148 163 184;
+    --c-slate-600: 203 213 225;
+    --c-slate-700: 226 232 240;
+    --c-slate-800: 241 245 249;
+    --c-slate-900: 248 250 252;
+    --c-slate-950: 255 255 255;
+
+    --c-sky-50: 12 74 110;
+    --c-sky-100: 7 89 133;
+    --c-sky-200: 3 105 161;
+    --c-sky-300: 14 165 233;
+    --c-sky-400: 56 189 248;
+    --c-sky-500: 14 165 233;
+    --c-sky-600: 2 132 199;
+    --c-sky-700: 125 211 252;
+    --c-sky-800: 186 230 253;
+    --c-sky-900: 224 242 254;
+    --c-sky-950: 240 249 255;
+
+    --c-surface: 30 41 59;
+    --c-surface-hover: 51 65 85;
+    --c-selected: 3 105 161;
+    --c-toolbar: 30 41 59;
+
+    --scrollbar-thumb: #475569;
+    --scrollbar-thumb-hover: #64748b;
+  }
+}
+
+@layer base {
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+    background-color: rgb(var(--c-slate-50));
+    color: rgb(var(--c-slate-800));
+  }
+
+  /* Aksesibilitas: fokus keyboard terlihat jelas (§9) */
+  :focus-visible {
+    outline: 2px solid rgb(var(--c-sky-500));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+  }
+}
+
+/* Custom scrollbar bergaya modern minimalis */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Kotak drag-select */
+.chimera-marquee {
+  position: fixed;
+  pointer-events: none;
+  border: 1px solid rgb(var(--c-sky-500));
+  background: rgb(var(--c-sky-500) / 0.12);
+  z-index: 40;
+}
+
+/* Area tampilan lebih lega di layar kecil */
+@media (max-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}

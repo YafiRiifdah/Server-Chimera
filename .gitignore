@@ -1,0 +1,49 @@
+# ---------- Dependensi & hasil build ----------
+node_modules/
+web/dist/
+build/
+*.tsbuildinfo
+
+# ---------- Rahasia & konfigurasi lokal ----------
+# .env berisi SESSION_SECRET dan password admin awal; yang dibagikan hanya .env.example
+.env
+.env.*
+!.env.example
+
+# ---------- Data pengguna & database (dev maupun produksi) ----------
+# Folder penyimpanan file dan metadata SQLite tidak pernah masuk repo
+data/
+storage/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+# Artefak tes lama yang dibuat dari cwd server/ (versi sebelum tes diisolasi)
+server/data/
+server/storage/
+
+# ---------- Log & berkas sementara ----------
+logs/
+*.log
+npm-debug.log*
+yarn-error.log*
+*.tmp
+*.part
+.cache/
+
+# ---------- PM2 ----------
+.pm2/
+pm2.log
+
+# ---------- Editor & alat lokal ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+# Konfigurasi sesi Claude Code (launch.json lokal), bukan bagian proyek
+.claude/
+
+# ---------- Sistem operasi ----------
+.DS_Store
+Thumbs.db
+desktop.ini
