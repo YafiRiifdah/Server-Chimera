@@ -140,6 +140,7 @@ export const api = {
   adminCreateUser: (body) => request('/admin/users', { method: 'POST', body }),
   adminUpdateUser: (id, body) => request(`/admin/users/${id}`, { method: 'PATCH', body }),
   adminResetPassword: (id, password) => request(`/admin/users/${id}/reset-password`, { method: 'POST', body: { password } }),
+  adminDeleteUser: (id) => request(`/admin/users/${id}`, { method: 'DELETE' }),
   adminShares: () => request('/admin/shares'),
   adminDeleteShare: (id) => request(`/admin/shares/${id}`, { method: 'DELETE' }),
   adminActivity: (params = {}) =>

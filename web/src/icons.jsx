@@ -62,6 +62,7 @@ import {
   MdOutlineUploadFile,
   MdOutlineViewList,
   MdOutlineVisibility,
+  MdOutlineVisibilityOff,
   MdOutlineWarningAmber,
   MdOutlineZoomIn,
   MdOutlineZoomOut
@@ -96,6 +97,7 @@ export const Download = MdOutlineFileDownload;
 export const Edit3 = MdOutlineDriveFileRenameOutline;
 export const ExternalLink = MdOutlineOpenInNew;
 export const Eye = MdOutlineVisibility;
+export const EyeOff = MdOutlineVisibilityOff;
 export const File = MdOutlineInsertDriveFile;
 export const FileCode = MdOutlineCode;
 export const FilePdf = MdOutlinePictureAsPdf;
@@ -128,7 +130,8 @@ export const ShieldCheck = MdOutlineAdminPanelSettings;
 export const SkipForward = MdOutlineSkipNext;
 export const Star = MdOutlineStarBorder;
 export const StarOff = MdOutlineStar;
-export const Trash2 = MdOutlineDelete;
+/** Glyph "delete" Material lebih kecil dari ikon lain di set yang sama; diperbesar sedikit agar seimbang. */
+export const Trash2 = ({ style, ...props }) => <MdOutlineDelete {...props} style={{ transform: 'scale(1.18)', ...style }} />;
 export const Upload = MdOutlineUploadFile;
 export const UploadCloud = MdOutlineCloudUpload;
 export const User = MdOutlinePerson;

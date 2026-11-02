@@ -1078,7 +1078,7 @@ export default function DrivePage({ user, onLogout }) {
               <LinksView showToast={showToast} onOpenPath={(p) => navigateTo(parentOf(p))} />
             ) : section === 'admin' ? (
               user.role === 'admin' ? (
-                <AdminView showToast={showToast} />
+                <AdminView showToast={showToast} currentUser={user} />
               ) : (
                 <p className="text-sm text-slate-500">Halaman ini khusus administrator.</p>
               )

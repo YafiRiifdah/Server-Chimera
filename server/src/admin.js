@@ -99,6 +99,38 @@ adminRouter.patch('/users/:id', (req, res) => {
   res.json({ user: userToJson(db.prepare('SELECT * FROM users WHERE id = ?').get(u.id)) });
 });
 
+/**
+ * Hapus pengguna. Baris DB dihapus (sesi, indeks, bintang, sampah, share, warna folder, upload
+ * ikut terhapus lewat ON DELETE CASCADE; aktivitas tetap ada dengan user_id NULL).
+ * Folder file pengguna TIDAK dihapus dari disk melainkan dipindahkan ke
+ * STORAGE_ROOT/.chimera/deleted-users/<username>-<waktu> agar admin masih bisa memulihkannya lewat SSH.
+ */
+adminRouter.delete('/users/:id', (req, res) => {
+  const db = getDb();
+  const u = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+  if (!u) return res.status(404).json({ error: 'Pengguna tidak ditemukan', code: 'NOT_FOUND' });
+  if (u.id === req.user.id) return res.status(400).json({ error: 'Tidak bisa menghapus akun sendiri', code: 'SELF_DELETE' });
+
+  const userRoot = path.join(STORAGE_ROOT, 'users', u.username);
+  let archivedTo = null;
+  if (fs.existsSync(userRoot)) {
+    const archiveDir = path.join(STORAGE_ROOT, '.chimera', 'deleted-users');
+    fs.mkdirSync(archiveDir, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    archivedTo = path.join(archiveDir, `${u.username}-${stamp}`);
+    fs.renameSync(userRoot, archivedTo);
+  }
+  db.prepare('DELETE FROM users WHERE id = ?').run(u.id);
+  logActivity(
+    req.user.id,
+    'admin_delete_user',
+    null,
+    { username: u.username, archivedTo: archivedTo && path.basename(archivedTo) },
+    req.ip
+  );
+  res.json({ success: true, archived: !!archivedTo });
+});
+
 adminRouter.post('/users/:id/reset-password', (req, res) => {
   const db = getDb();
   const u = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);

@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Users, Link2, Activity, HardDrive, RefreshCw, UserPlus, KeyRound, Ban, CheckCircle2, Trash2 } from '../icons.jsx';
 import Select from './Select.jsx';
+import ConfirmModal from './ConfirmModal.jsx';
+import InputModal from './InputModal.jsx';
+import PasswordInput from './PasswordInput.jsx';
 import { api } from '../api/client.js';
 import { formatFileSize, formatDate } from './FileIcon.jsx';
 
 const GB = 1024 * 1024 * 1024;
 
 /** Halaman Admin (Master Prompt §5.8). */
-export default function AdminView({ showToast }) {
+export default function AdminView({ showToast, currentUser }) {
   const [tab, setTab] = useState('users');
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
@@ -19,6 +22,8 @@ export default function AdminView({ showToast }) {
   // Form tambah user
   const [form, setForm] = useState({ username: '', password: '', displayName: '', quotaGb: '100', role: 'user' });
   const [showAdd, setShowAdd] = useState(false);
+  const [confirmState, setConfirmState] = useState(null);
+  const [inputState, setInputState] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -66,17 +71,50 @@ export default function AdminView({ showToast }) {
   };
 
   const changeQuota = (u) => {
-    const v = window.prompt(`Kuota untuk @${u.username} (GB):`, String(Math.round(u.quotaBytes / GB)));
-    if (v === null) return;
-    const gb = Number(v);
-    if (!Number.isFinite(gb) || gb <= 0) return showToast('Kuota harus angka > 0', 'error');
-    act(() => api.adminUpdateUser(u.id, { quotaBytes: Math.round(gb * GB) }), 'Kuota diperbarui');
+    setInputState({
+      title: 'Atur kuota',
+      message: `Batas penyimpanan untuk @${u.username}. Saat ini terpakai ${formatFileSize(u.usedBytes)}.`,
+      label: 'Kuota',
+      type: 'number',
+      min: 1,
+      suffix: 'GB',
+      initialValue: String(Math.round(u.quotaBytes / GB)),
+      confirmLabel: 'Simpan',
+      validate: (v) => (!Number.isFinite(Number(v)) || Number(v) <= 0 ? 'Kuota harus angka lebih dari 0' : null),
+      onConfirm: (v) => {
+        setInputState(null);
+        act(() => api.adminUpdateUser(u.id, { quotaBytes: Math.round(Number(v) * GB) }), 'Kuota diperbarui');
+      }
+    });
   };
 
   const resetPassword = (u) => {
-    const pw = window.prompt(`Password baru untuk @${u.username} (min 8 karakter):`);
-    if (!pw) return;
-    act(() => api.adminResetPassword(u.id, pw), `Password @${u.username} direset, semua sesinya diakhiri`);
+    setInputState({
+      title: 'Reset password',
+      message: `Password baru untuk @${u.username}. Semua sesi aktifnya akan diakhiri dan ia harus login ulang.`,
+      label: 'Password baru',
+      type: 'password',
+      placeholder: 'Minimal 8 karakter',
+      initialValue: '',
+      confirmLabel: 'Reset password',
+      validate: (v) => (v.length < 8 ? 'Password minimal 8 karakter' : null),
+      onConfirm: (v) => {
+        setInputState(null);
+        act(() => api.adminResetPassword(u.id, v), `Password @${u.username} direset, semua sesinya diakhiri`);
+      }
+    });
+  };
+
+  const deleteUser = (u) => {
+    setConfirmState({
+      title: `Hapus pengguna @${u.username}?`,
+      message: `Akun, sesi, link, dan bintangnya dihapus. File miliknya tidak dihapus dari disk, melainkan dipindahkan ke arsip server (.chimera/deleted-users) sehingga admin masih bisa memulihkannya.`,
+      confirmLabel: 'Hapus pengguna',
+      onConfirm: () => {
+        setConfirmState(null);
+        act(() => api.adminDeleteUser(u.id), `Pengguna @${u.username} dihapus`);
+      }
+    });
   };
 
   const tabBtn = (id, label, Icon) => (
@@ -147,9 +185,8 @@ export default function AdminView({ showToast }) {
                 placeholder="Username"
                 className={input}
               />
-              <input
+              <PasswordInput
                 required
-                type="password"
                 minLength={8}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -208,8 +245,13 @@ export default function AdminView({ showToast }) {
                         <div className="font-medium text-slate-800">
                           {u.displayName} <span className="text-xs text-slate-400">@{u.username}</span>
                           {u.role === 'admin' && (
-                            <span className="ml-2 text-[10px] font-semibold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">
+                            <span className="ml-2 text-[10px] font-semibold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full whitespace-nowrap">
                               Admin
+                            </span>
+                          )}
+                          {u.id === currentUser?.id && (
+                            <span className="ml-2 text-xs font-semibold bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full whitespace-nowrap">
+                              Akun Anda
                             </span>
                           )}
                         </div>
@@ -254,18 +296,30 @@ export default function AdminView({ showToast }) {
                         >
                           <KeyRound className="w-5 h-5" />
                         </button>
-                        <button
-                          onClick={() =>
-                            act(
-                              () => api.adminUpdateUser(u.id, { disabled: !u.disabled }),
-                              u.disabled ? 'Pengguna diaktifkan' : 'Pengguna dinonaktifkan'
-                            )
-                          }
-                          className={`p-1.5 rounded-full ${u.disabled ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-600 hover:bg-red-50'}`}
-                          title={u.disabled ? 'Aktifkan' : 'Nonaktifkan'}
-                        >
-                          {u.disabled ? <CheckCircle2 className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
-                        </button>
+                        {u.id !== currentUser?.id && (
+                          <>
+                            <button
+                              onClick={() =>
+                                act(
+                                  () => api.adminUpdateUser(u.id, { disabled: !u.disabled }),
+                                  u.disabled ? 'Pengguna diaktifkan' : 'Pengguna dinonaktifkan'
+                                )
+                              }
+                              className={`p-1.5 rounded-full ${u.disabled ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-600 hover:bg-red-50'}`}
+                              title={u.disabled ? 'Aktifkan' : 'Nonaktifkan'}
+                            >
+                              {u.disabled ? <CheckCircle2 className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
+                            </button>
+                            <button
+                              onClick={() => deleteUser(u)}
+                              className="p-1.5 rounded-full text-slate-500 hover:bg-red-50 hover:text-red-600"
+                              title="Hapus pengguna"
+                              aria-label={`Hapus pengguna ${u.username}`}
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   );
@@ -371,6 +425,30 @@ export default function AdminView({ showToast }) {
           <p className="text-[11px] text-slate-400">Log dipangkas otomatis setelah 90 hari.</p>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!confirmState}
+        title={confirmState?.title}
+        message={confirmState?.message}
+        confirmLabel={confirmState?.confirmLabel}
+        onConfirm={confirmState?.onConfirm}
+        onCancel={() => setConfirmState(null)}
+      />
+      <InputModal
+        open={!!inputState}
+        title={inputState?.title}
+        message={inputState?.message}
+        label={inputState?.label}
+        type={inputState?.type}
+        min={inputState?.min}
+        suffix={inputState?.suffix}
+        placeholder={inputState?.placeholder}
+        initialValue={inputState?.initialValue ?? ''}
+        confirmLabel={inputState?.confirmLabel}
+        validate={inputState?.validate}
+        onConfirm={inputState?.onConfirm}
+        onCancel={() => setInputState(null)}
+      />
     </div>
   );
 }

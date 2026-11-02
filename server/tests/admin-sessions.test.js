@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 import { app } from '../src/index.js';
 import { loginAdmin, loginAs, createUser, client } from './helpers.js';
-import { INITIAL_ADMIN } from '../src/config.js';
+import fs from 'fs';
+import path from 'path';
+import { INITIAL_ADMIN, STORAGE_ROOT } from '../src/config.js';
 
 describe('Admin dan sesi aktif', () => {
   let admin, dewi;
@@ -98,6 +100,30 @@ describe('Admin dan sesi aktif', () => {
     const re = await admin.post('/api/admin/reindex');
     assert.equal(re.status, 200);
     assert.ok(re.body.indexed.dewi >= 1);
+  });
+
+  test('DELETE /admin/users/:id menghapus pengguna, mengarsipkan foldernya, menolak hapus diri sendiri', async () => {
+    const eko = client(await loginAs('eko', 'sandi-eko-1'));
+    await eko.upload('', 'punya-eko.txt', 'isi');
+    const e = (await admin.get('/api/admin/users')).body.users.find((u) => u.username === 'eko');
+    const res = await admin.del(`/api/admin/users/${e.id}`);
+    assert.equal(res.status, 200, JSON.stringify(res.body));
+    assert.equal(res.body.archived, true);
+    // Sesi eko berakhir, login ditolak, tidak ada lagi di daftar
+    assert.equal((await eko.get('/api/auth/me')).status, 401);
+    const login = await request(app).post('/api/auth/login').send({ username: 'eko', password: 'sandi-eko-1' });
+    assert.equal(login.status, 401);
+    assert.ok(!(await admin.get('/api/admin/users')).body.users.some((u) => u.username === 'eko'));
+    // Folder dipindahkan ke arsip, bukan dihapus
+    assert.ok(!fs.existsSync(path.join(STORAGE_ROOT, 'users', 'eko')));
+    const archive = path.join(STORAGE_ROOT, '.chimera', 'deleted-users');
+    const entry = fs.readdirSync(archive).find((n) => n.startsWith('eko-'));
+    assert.ok(entry);
+    assert.ok(fs.existsSync(path.join(archive, entry, 'punya-eko.txt')));
+    // Tidak bisa menghapus diri sendiri; id tak dikenal → 404
+    const me = (await admin.get('/api/admin/users')).body.users.find((u) => u.username === INITIAL_ADMIN.username);
+    assert.equal((await admin.del(`/api/admin/users/${me.id}`)).status, 400);
+    assert.equal((await admin.del('/api/admin/users/999999')).status, 404);
   });
 
   test('GET /auth/sessions menampilkan sesi aktif dengan penanda current; DELETE mengakhiri sesi lain', async () => {

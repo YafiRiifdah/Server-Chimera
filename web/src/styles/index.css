@@ -135,7 +135,8 @@
 
 /* Transisi perpindahan halaman/folder */
 .chimera-page-enter {
-  animation: chimera-page-in 220ms ease-out both;
+  /* backwards, bukan both: setelah selesai tidak ada transform tersisa (transform membuat elemen position:fixed di dalamnya salah posisi) */
+  animation: chimera-page-in 220ms ease-out backwards;
 }
 @keyframes chimera-page-in {
   from {

@@ -23,11 +23,13 @@ import {
 } from '../icons.jsx';
 import ColorPalette from './ColorPalette.jsx';
 
-const MENU_W = 256;
+const MENU_W = 272;
 const SUB_W = 240;
 
-const itemClass = 'w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-4 transition-colors whitespace-nowrap';
-const dangerClass = 'w-full px-4 py-2 text-left hover:bg-red-50 text-red-600 flex items-center gap-4 transition-colors whitespace-nowrap';
+const itemClass =
+  'w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-4 transition-colors whitespace-nowrap [&>svg]:shrink-0';
+const dangerClass =
+  'w-full px-4 py-2 text-left hover:bg-red-50 text-red-600 flex items-center gap-4 transition-colors whitespace-nowrap [&>svg]:shrink-0';
 const Divider = () => <div className="border-t border-slate-100 my-1.5"></div>;
 const Hint = ({ children }) => <span className="ml-auto pl-3 text-[11px] text-slate-400">{children}</span>;
 
