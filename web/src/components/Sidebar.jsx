@@ -1,3 +1,4 @@
+import { formatFileSize } from './FileIcon.jsx';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Plus,
@@ -56,8 +57,8 @@ export default function Sidebar({
   ];
   if (user?.role === 'admin') navItems.push({ id: 'admin', label: 'Admin', icon: ShieldCheck });
 
-  const usedGB = usage ? (usage.used / (1024 * 1024 * 1024)).toFixed(1) : '0';
-  const quotaGB = usage ? (usage.quota / (1024 * 1024 * 1024)).toFixed(0) : '100';
+  const usedText = formatFileSize(usage?.used || 0, '0 B');
+  const quotaText = formatFileSize(usage?.quota || 100 * 1024 * 1024 * 1024);
   const percentUsed = usage && usage.quota > 0 ? Math.min(100, Math.round((usage.used / usage.quota) * 100)) : 0;
 
   const isRootActive = section === 'drive' && currentPath === '';
@@ -197,7 +198,7 @@ export default function Sidebar({
             />
           </div>
           <p className="text-xs text-slate-500">
-            {usedGB} GB dari {quotaGB} GB digunakan ({percentUsed}%)
+            {usedText} dari {quotaText} digunakan ({percentUsed}%)
           </p>
         </div>
       </aside>

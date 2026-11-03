@@ -73,7 +73,7 @@ export default function AdminView({ showToast, currentUser }) {
   const changeQuota = (u) => {
     setInputState({
       title: 'Atur kuota',
-      message: `Batas penyimpanan untuk @${u.username}. Saat ini terpakai ${formatFileSize(u.usedBytes)}.`,
+      message: `Batas penyimpanan untuk @${u.username}. Saat ini terpakai ${formatFileSize(u.usedBytes, '0 B')}.`,
       label: 'Kuota',
       type: 'number',
       min: 1,
@@ -152,7 +152,7 @@ export default function AdminView({ showToast, currentUser }) {
                 {[
                   ['Disk tersisa', formatFileSize(stats.diskFree), HardDrive],
                   ['Kapasitas disk', formatFileSize(stats.diskTotal), HardDrive],
-                  ['Dipakai semua user', formatFileSize(stats.usedBytes), Users],
+                  ['Dipakai semua user', formatFileSize(stats.usedBytes, '0 B'), Users],
                   ['Pengguna aktif', `${stats.activeUsers} / ${stats.usersCount}`, Users]
                 ].map(([label, value, Icon]) => (
                   <div key={label} className="bg-white rounded-2xl border border-slate-200/80 p-4">
@@ -257,12 +257,12 @@ export default function AdminView({ showToast, currentUser }) {
                             )}
                           </div>
                           <div className="text-[11px] text-slate-400 md:hidden">
-                            {formatFileSize(u.usedBytes)} / {formatFileSize(u.quotaBytes)}
+                            {formatFileSize(u.usedBytes, '0 B')} / {formatFileSize(u.quotaBytes)}
                           </div>
                         </td>
                         <td className="py-2.5 px-4 hidden md:table-cell">
                           <div className="text-xs text-slate-600">
-                            {formatFileSize(u.usedBytes)} dari {formatFileSize(u.quotaBytes)} ({pct}%)
+                            {formatFileSize(u.usedBytes, '0 B')} dari {formatFileSize(u.quotaBytes)} ({pct}%)
                           </div>
                           <div className="w-full bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
                             <div

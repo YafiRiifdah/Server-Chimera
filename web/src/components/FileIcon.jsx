@@ -29,8 +29,8 @@ export function getFileCategory(name, mime = '') {
   return 'file';
 }
 
-export function formatFileSize(bytes) {
-  if (!bytes || bytes === 0) return '—';
+export function formatFileSize(bytes, zero = '—') {
+  if (!bytes || bytes === 0) return zero;
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return `${(bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0)} ${units[i]}`;
