@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HardDrive, Lock, Download, ChevronRight, FolderArchive, Eye, AlertCircle, Loader2 } from '../icons.jsx';
+import { Logo, Lock, Download, ChevronRight, FolderArchive, Eye, AlertCircle, Loader2 } from '../icons.jsx';
 import { api } from '../api/client.js';
 import FileIcon, { formatFileSize, formatDate } from '../components/FileIcon.jsx';
 import Thumbnail from '../components/Thumbnail.jsx';
@@ -56,9 +56,7 @@ export default function PublicSharePage({ token }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-8 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-500 flex items-center justify-center text-on-accent">
-          <HardDrive className="w-5 h-5" />
-        </div>
+        <Logo className="w-10 h-10 text-sky-600" />
         <div className="flex flex-col">
           <span className="font-bold text-lg leading-none">Chimera</span>
           <span className="text-xs text-slate-400 font-medium">Dibagikan lewat link</span>

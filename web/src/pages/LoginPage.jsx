@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HardDrive, Lock, User, AlertCircle, ArrowRight } from '../icons.jsx';
+import { Logo, Lock, User, AlertCircle, ArrowRight } from '../icons.jsx';
 import { api } from '../api/client.js';
 
 export default function LoginPage({ onLoginSuccess }) {
@@ -30,9 +30,7 @@ export default function LoginPage({ onLoginSuccess }) {
       <div className="w-full max-w-md bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-white/60 p-8 sm:p-10 animate-in fade-in zoom-in-95 duration-200">
         {/* Brand Icon & Heading */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-600 to-cyan-500 flex items-center justify-center text-on-accent shadow-lg shadow-sky-500/20 mb-4">
-            <HardDrive className="w-8 h-8" />
-          </div>
+          <Logo className="w-16 h-16 text-sky-600 mb-3" />
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Chimera</h1>
           <p className="text-sm text-slate-500 mt-1">Drive pribadi di server sendiri</p>
         </div>

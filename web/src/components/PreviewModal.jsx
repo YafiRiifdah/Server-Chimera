@@ -1,3 +1,4 @@
+import useEscapeKey from '../hooks/useEscapeKey.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Download, ChevronLeft, ChevronRight, ExternalLink, FileQuestion, FileText, Music, ZoomIn, ZoomOut } from '../icons.jsx';
 import { rawUrl as rawUrlFor, thumbUrl } from '../utils/urls.js';
@@ -11,6 +12,8 @@ const MAX_ZOOM = 6;
  * navigasi ← → (tombol, keyboard, geser kiri/kanan di layar sentuh); HEIC dikonversi server ke JPEG.
  */
 export default function PreviewModal({ activeFile, fileList, onClose, onNavigateFile }) {
+  // Hanya untuk meredupkan bilah judul PWA; Esc ditangani sendiri di bawah
+  useEscapeKey(true);
   const [textContent, setTextContent] = useState(null);
   const [loadingText, setLoadingText] = useState(false);
   const [zoom, setZoom] = useState(1);

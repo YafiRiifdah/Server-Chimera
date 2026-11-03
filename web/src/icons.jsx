@@ -7,6 +7,7 @@ import {
   MdCheck,
   MdChevronLeft,
   MdChevronRight,
+  MdCloudUpload,
   MdClose,
   MdExpandLess,
   MdExpandMore,
@@ -18,6 +19,8 @@ import {
   MdOutlineBlock,
   MdOutlineCheckCircle,
   MdOutlineCloud,
+  MdOutlineDarkMode,
+  MdOutlineLightMode,
   MdOutlineCloudUpload,
   MdOutlineCode,
   MdOutlineComputer,
@@ -119,6 +122,8 @@ export const Lock = MdOutlineLock;
 export const LogOut = MdOutlineLogout;
 export const Menu = MdMenu;
 export const Monitor = MdOutlineComputer;
+export const Moon = MdOutlineDarkMode;
+export const Sun = MdOutlineLightMode;
 export const MoreVertical = MdMoreVert;
 export const Music = MdOutlineAudiotrack;
 export const Palette = MdOutlinePalette;
@@ -142,6 +147,9 @@ export const X = MdClose;
 export const ZoomIn = MdOutlineZoomIn;
 export const ZoomOut = MdOutlineZoomOut;
 export { MdOutlineArchive as ArchiveBox };
+
+/** Logo merek Chimera (awan + panah unggah), dipakai di topbar, halaman login, halaman link publik, dan ikon PWA. */
+export const Logo = MdCloudUpload;
 
 /** Indikator memuat: cincin CSS (Material tidak punya ikon spinner). Tambahkan `animate-spin` lewat className. */
 export function Loader2({ className = '' }) {

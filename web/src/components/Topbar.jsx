@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, LogOut, KeyRound, HardDrive, X, Monitor, ShieldCheck, Menu } from '../icons.jsx';
+import { Search, LogOut, KeyRound, Logo, X, Monitor, ShieldCheck, Menu, Moon, Sun } from '../icons.jsx';
+import { getTheme, setTheme } from '../utils/theme.js';
 
 /**
  * Bar atas: tombol menu (layar kecil), logo, kotak pencarian global, menu profil.
@@ -17,6 +18,12 @@ export default function Topbar({
   onMenuClick
 }) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [theme, setThemeState] = useState(() => getTheme());
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    setThemeState(next);
+  };
   const profileRef = useRef(null);
 
   useEffect(() => {
@@ -40,9 +47,7 @@ export default function Topbar({
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-500 flex items-center justify-center text-on-accent shadow-sm shadow-sky-200 shrink-0">
-          <HardDrive className="w-5 h-5" />
-        </div>
+        <Logo className="w-9 h-9 sm:w-10 sm:h-10 text-sky-600 shrink-0" />
         <div className="hidden sm:flex flex-col">
           <span className="font-bold text-lg text-slate-800 tracking-tight leading-none">Chimera</span>
           <span className="text-xs text-slate-400 font-medium">Drive Pribadi</span>
@@ -126,6 +131,10 @@ export default function Topbar({
                   className={menuItem}
                 >
                   <Monitor className="w-5 h-5 text-slate-400" /> Sesi aktif
+                </button>
+                <button role="menuitemcheckbox" aria-checked={theme === 'dark'} onClick={toggleTheme} className={menuItem}>
+                  {theme === 'dark' ? <Sun className="w-5 h-5 text-slate-400" /> : <Moon className="w-5 h-5 text-slate-400" />}
+                  {theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
                 </button>
                 {user?.role === 'admin' && (
                   <button
