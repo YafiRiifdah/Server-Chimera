@@ -5,10 +5,10 @@ import { Eye, EyeOff } from '../icons.jsx';
  * Kolom password dengan tombol lihat/sembunyikan (pola Google: ikon mata di kanan).
  * Semua prop lain diteruskan ke <input>.
  */
-export default function PasswordInput({ className = '', ...props }) {
+export default function PasswordInput({ className = '', wrapperClassName = 'w-full', ...props }) {
   const [show, setShow] = useState(false);
   return (
-    <div className="relative">
+    <div className={`relative ${wrapperClassName}`}>
       <input {...props} type={show ? 'text' : 'password'} className={`${className} pr-10 w-full`} />
       <button
         type="button"

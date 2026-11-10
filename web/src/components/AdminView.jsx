@@ -226,7 +226,97 @@ export default function AdminView({ showToast, currentUser }) {
               </form>
             )}
 
-            <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            {/* HP: kartu per pengguna */}
+            <ul className="md:hidden space-y-2">
+              {users.map((u) => {
+                const pct = u.quotaBytes > 0 ? Math.min(100, Math.round((u.usedBytes / u.quotaBytes) * 100)) : 0;
+                const self = u.id === currentUser?.id;
+                return (
+                  <li key={u.id} className={`bg-white rounded-2xl border border-slate-200/80 p-3 ${u.disabled ? 'opacity-60' : ''}`}>
+                    <div className="font-medium text-slate-800 flex items-center flex-wrap gap-x-2 gap-y-1">
+                      <span className="truncate">{u.displayName}</span>
+                      <span className="text-xs text-slate-400">@{u.username}</span>
+                      {u.role === 'admin' && (
+                        <span className="text-[10px] font-semibold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                          Admin
+                        </span>
+                      )}
+                      {self && (
+                        <span className="text-xs font-semibold bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full whitespace-nowrap">
+                          Akun Anda
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2 text-xs text-slate-600">
+                      {formatFileSize(u.usedBytes, '0 B')} dari {formatFileSize(u.quotaBytes)} ({pct}%)
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
+                      <div
+                        className={`h-full ${pct > 90 ? 'bg-red-500' : pct > 70 ? 'bg-amber-500' : 'bg-sky-600'}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+                      <span className="text-slate-500">
+                        {u.disabled ? (
+                          <span className="text-red-600 font-semibold">Nonaktif</span>
+                        ) : (
+                          <span className="text-emerald-600 font-semibold">Aktif</span>
+                        )}
+                        {' • '}
+                        {u.activeSessions} sesi • {u.lastLoginAt ? formatDate(u.lastLoginAt) : 'belum login'}
+                      </span>
+                      <div className="flex items-center -mr-1 shrink-0">
+                        <button
+                          onClick={() => changeQuota(u)}
+                          className="p-2 rounded-full text-slate-500 hover:bg-slate-100"
+                          title="Atur kuota"
+                          aria-label="Atur kuota"
+                        >
+                          <HardDrive className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => resetPassword(u)}
+                          className="p-2 rounded-full text-slate-500 hover:bg-slate-100"
+                          title="Reset password"
+                          aria-label="Reset password"
+                        >
+                          <KeyRound className="w-5 h-5" />
+                        </button>
+                        {!self && (
+                          <>
+                            <button
+                              onClick={() =>
+                                act(
+                                  () => api.adminUpdateUser(u.id, { disabled: !u.disabled }),
+                                  u.disabled ? 'Pengguna diaktifkan' : 'Pengguna dinonaktifkan'
+                                )
+                              }
+                              className={`p-2 rounded-full ${u.disabled ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-600 hover:bg-red-50'}`}
+                              title={u.disabled ? 'Aktifkan' : 'Nonaktifkan'}
+                              aria-label={u.disabled ? 'Aktifkan' : 'Nonaktifkan'}
+                            >
+                              {u.disabled ? <CheckCircle2 className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
+                            </button>
+                            <button
+                              onClick={() => deleteUser(u)}
+                              className="p-2 rounded-full text-slate-500 hover:bg-red-50 hover:text-red-600"
+                              title="Hapus pengguna"
+                              aria-label={`Hapus pengguna ${u.username}`}
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Desktop: tabel */}
+            <div className="hidden md:block w-full bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50/70 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   <tr>
@@ -332,8 +422,8 @@ export default function AdminView({ showToast, currentUser }) {
         )}
 
         {tab === 'shares' && (
-          <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-            <table className="w-full text-left text-sm">
+          <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-x-auto">
+            <table className="w-full min-w-[560px] text-left text-sm">
               <thead className="bg-slate-50/70 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 <tr>
                   <th className="py-3 px-4">Pemilik</th>
@@ -390,8 +480,8 @@ export default function AdminView({ showToast, currentUser }) {
               aria-label="Pengguna"
               className="w-full sm:w-64"
             />
-            <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-              <table className="w-full text-left text-xs">
+            <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left text-xs">
                 <thead className="bg-slate-50/70 border-b border-slate-200 font-semibold text-slate-500 uppercase tracking-wider">
                   <tr>
                     <th className="py-3 px-4 w-40">Waktu</th>

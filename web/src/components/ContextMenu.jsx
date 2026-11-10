@@ -34,16 +34,22 @@ const Divider = () => <div className="border-t border-slate-100 my-1.5"></div>;
 const Hint = ({ children }) => <span className="ml-auto pl-3 text-[11px] text-slate-400">{children}</span>;
 
 /** Baris menu yang membuka submenu melayang (pola Google Drive): hover di desktop, klik di sentuh. */
-function SubMenu({ id, icon: Icon, label, openId, setOpenId, flipLeft, children, width = SUB_W }) {
+function SubMenu({ id, icon: Icon, label, openId, setOpenId, flipLeft, inline, children, width = SUB_W }) {
   const open = openId === id;
   return (
-    <div className="relative" onMouseEnter={() => setOpenId(id)}>
+    <div className="relative" onMouseEnter={() => !inline && setOpenId(id)}>
       <button type="button" onClick={() => setOpenId(open ? null : id)} className={itemClass} aria-haspopup="menu" aria-expanded={open}>
         <Icon className="w-5 h-5 text-slate-500" />
         <span className="flex-1">{label}</span>
-        <ChevronRight className="w-5 h-5 text-slate-400" />
+        <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${inline && open ? 'rotate-90' : ''}`} />
       </button>
-      {open && (
+      {open && inline && (
+        /* Layar sempit: submenu dibuka ke bawah (akordeon) karena tidak ada ruang untuk melayang ke samping */
+        <div role="menu" className="bg-slate-50/80 border-y border-slate-100 py-1 animate-in fade-in slide-in-from-top-1 duration-100">
+          {children}
+        </div>
+      )}
+      {open && !inline && (
         <div
           role="menu"
           style={{ width }}
@@ -110,23 +116,25 @@ export default function ContextMenu({
   if (!menuState.visible) return null;
 
   const { x, y, item } = menuState;
-  const left = Math.min(x, window.innerWidth - MENU_W - 8);
-  const top = Math.min(y, window.innerHeight - 320);
-  const flipLeft = left + MENU_W + SUB_W + 16 > window.innerWidth;
+  const menuW = Math.min(MENU_W, window.innerWidth - 16);
+  const inline = window.innerWidth < 640; // layar HP: submenu akordeon, menu tidak pernah keluar layar
+  const left = Math.max(8, Math.min(x, window.innerWidth - menuW - 8));
+  const top = Math.max(8, Math.min(y, window.innerHeight - (inline ? 440 : 320)));
+  const flipLeft = left + menuW + SUB_W + 16 > window.innerWidth;
   const act = (fn) => () => {
     onClose();
     fn();
   };
   const own = mode === 'drive' || mode === 'list';
   const isFolder = item?.type === 'folder';
-  const sub = { openId, setOpenId, flipLeft };
+  const sub = { openId, setOpenId, flipLeft, inline };
 
   return (
     <div
       ref={menuRef}
-      style={{ top, left, width: MENU_W }}
+      style={{ top, left, width: menuW, maxHeight: window.innerHeight - 16 }}
       onClick={(e) => e.stopPropagation()}
-      className="fixed z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 text-sm text-slate-700 animate-in fade-in zoom-in-95 duration-100 select-none"
+      className="fixed z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 text-sm text-slate-700 animate-in fade-in zoom-in-95 duration-100 select-none overflow-y-auto"
     >
       {item && mode === 'trash' ? (
         <>

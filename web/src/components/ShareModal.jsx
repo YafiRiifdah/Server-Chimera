@@ -5,6 +5,8 @@ import { api } from '../api/client.js';
 import { copyText } from '../utils/clipboard.js';
 import FileIcon from './FileIcon.jsx';
 import Select from './Select.jsx';
+import InputModal from './InputModal.jsx';
+import PasswordInput from './PasswordInput.jsx';
 
 const USER_PERMS = [
   ['view', 'Lihat'],
@@ -40,6 +42,7 @@ export default function ShareModal({ item, isOpen, onClose, showToast }) {
   const [linkPassword, setLinkPassword] = useState('');
   const [maxDownloads, setMaxDownloads] = useState('');
   const [creating, setCreating] = useState(false);
+  const [passwordFor, setPasswordFor] = useState(null); // share yang sedang dipasangi password
   const [error, setError] = useState('');
 
   const reload = async () => {
@@ -117,9 +120,9 @@ export default function ShareModal({ item, isOpen, onClose, showToast }) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-in fade-in duration-150"
     >
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 w-full sm:max-w-lg p-5 sm:p-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pb-6 max-h-[92vh] overflow-y-auto animate-in fade-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5 min-w-0">
             <FileIcon item={item} className="w-6 h-6 shrink-0" />
@@ -137,23 +140,31 @@ export default function ShareModal({ item, isOpen, onClose, showToast }) {
           <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <UserPlus className="w-4 h-4" /> Bagikan ke pengguna
           </h4>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Select
               value={targetUsername}
               onChange={setTargetUsername}
               placeholder="Pilih pengguna…"
               aria-label="Pengguna"
               options={availableUsers.map((u) => [u.username, `${u.displayName} (@${u.username})`])}
-              className={`${small} flex-1 min-w-0`}
+              className={`${small} w-full sm:flex-1 min-w-0`}
             />
-            <Select value={userPermission} onChange={setUserPermission} options={USER_PERMS} aria-label="Izin" className={small} />
-            <button
-              onClick={shareToUser}
-              disabled={!targetUsername}
-              className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-on-accent text-xs font-semibold"
-            >
-              Bagikan
-            </button>
+            <div className="flex gap-2">
+              <Select
+                value={userPermission}
+                onChange={setUserPermission}
+                options={USER_PERMS}
+                aria-label="Izin"
+                className={`${small} flex-1 sm:flex-none`}
+              />
+              <button
+                onClick={shareToUser}
+                disabled={!targetUsername}
+                className="px-4 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-on-accent text-xs font-semibold"
+              >
+                Bagikan
+              </button>
+            </div>
           </div>
           {userShares.length > 0 && (
             <ul className="mt-3 divide-y divide-slate-100 border border-slate-100 rounded-xl">
@@ -162,7 +173,7 @@ export default function ShareModal({ item, isOpen, onClose, showToast }) {
                   <div className="w-7 h-7 rounded-full bg-sky-100 text-sky-700 text-xs font-bold flex items-center justify-center shrink-0">
                     {s.targetUsername.charAt(0).toUpperCase()}
                   </div>
-                  <span className="flex-1 truncate">@{s.targetUsername}</span>
+                  <span className="flex-1 truncate min-w-0">@{s.targetUsername}</span>
                   <Select
                     value={s.permission}
                     onChange={(permission) => run(() => api.updateShare(s.id, { permission }))}
@@ -237,13 +248,7 @@ export default function ShareModal({ item, isOpen, onClose, showToast }) {
                       hapus password
                     </button>
                   ) : (
-                    <button
-                      onClick={() => {
-                        const pw = window.prompt('Password untuk link ini:');
-                        if (pw) run(() => api.updateShare(s.id, { password: pw }), 'Password dipasang');
-                      }}
-                      className="underline"
-                    >
+                    <button onClick={() => setPasswordFor(s)} className="underline">
                       pasang password
                     </button>
                   )}
@@ -258,15 +263,27 @@ export default function ShareModal({ item, isOpen, onClose, showToast }) {
 
           <div className="border border-dashed border-slate-200 rounded-xl p-3 text-xs space-y-2">
             <p className="text-slate-500 font-medium">Buat link baru</p>
-            <div className="flex flex-wrap gap-2">
-              <Select value={linkPermission} onChange={setLinkPermission} options={LINK_PERMS} aria-label="Izin link" className={small} />
-              <Select value={expiresIn} onChange={setExpiresIn} options={EXPIRY_OPTIONS} aria-label="Kedaluwarsa" className={small} />
-              <input
-                type="password"
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+              <Select
+                value={linkPermission}
+                onChange={setLinkPermission}
+                options={LINK_PERMS}
+                aria-label="Izin link"
+                className={`${small} w-full sm:w-auto`}
+              />
+              <Select
+                value={expiresIn}
+                onChange={setExpiresIn}
+                options={EXPIRY_OPTIONS}
+                aria-label="Kedaluwarsa"
+                className={`${small} w-full sm:w-auto`}
+              />
+              <PasswordInput
+                wrapperClassName="w-full sm:w-44"
                 value={linkPassword}
                 onChange={(e) => setLinkPassword(e.target.value)}
                 placeholder="Password (opsional)"
-                className={`${select} w-36`}
+                className={select}
               />
               <input
                 type="number"
@@ -274,13 +291,13 @@ export default function ShareModal({ item, isOpen, onClose, showToast }) {
                 value={maxDownloads}
                 onChange={(e) => setMaxDownloads(e.target.value)}
                 placeholder="Maks download"
-                className={`${select} w-28`}
+                className={`${select} w-full sm:w-32`}
               />
             </div>
             <button
               onClick={createLink}
               disabled={creating || loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ink hover:bg-ink/90 disabled:opacity-50 text-on-accent font-semibold"
+              className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-lg bg-ink hover:bg-ink/90 disabled:opacity-50 text-on-accent font-semibold"
             >
               {creating ? <Check className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
               {creating ? 'Membuat…' : 'Buat link & salin'}
@@ -288,6 +305,22 @@ export default function ShareModal({ item, isOpen, onClose, showToast }) {
           </div>
         </section>
       </div>
+      <InputModal
+        open={!!passwordFor}
+        title="Pasang password"
+        message="Siapa pun yang membuka link ini harus memasukkan password."
+        label="Password link"
+        type="password"
+        placeholder="Minimal 4 karakter"
+        confirmLabel="Pasang"
+        validate={(v) => (v.length < 4 ? 'Password minimal 4 karakter' : null)}
+        onConfirm={(pw) => {
+          const target = passwordFor;
+          setPasswordFor(null);
+          run(() => api.updateShare(target.id, { password: pw }), 'Password dipasang');
+        }}
+        onCancel={() => setPasswordFor(null)}
+      />
     </div>
   );
 }
