@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import {
   MdAdd,
   MdArrowDownward,
@@ -38,14 +38,12 @@ import {
   MdOutlineFolderZip,
   MdOutlineGridView,
   MdOutlineHistory,
-  MdOutlineImage,
   MdOutlineInfo,
   MdOutlineInsertDriveFile,
   MdOutlineKey,
   MdOutlineLink,
   MdOutlineLock,
   MdOutlineLogout,
-  MdOutlineMovie,
   MdOutlineOpenInNew,
   MdOutlinePalette,
   MdOutlinePeople,
@@ -112,7 +110,6 @@ export const FolderInput = MdOutlineDriveFileMove;
 export const FolderPlus = MdOutlineCreateNewFolder;
 export const FolderUp = MdOutlineDriveFolderUpload;
 export const HardDrive = MdOutlineStorage;
-export const Image = MdOutlineImage;
 export const Info = MdOutlineInfo;
 export const KeyRound = MdOutlineKey;
 export const LayoutGrid = MdOutlineGridView;
@@ -142,7 +139,6 @@ export const UploadCloud = MdOutlineCloudUpload;
 export const User = MdOutlinePerson;
 export const UserPlus = MdOutlinePersonAddAlt;
 export const Users = MdOutlinePeople;
-export const Video = MdOutlineMovie;
 export const X = MdClose;
 export const ZoomIn = MdOutlineZoomIn;
 export const ZoomOut = MdOutlineZoomOut;
@@ -154,4 +150,39 @@ export const Logo = MdCloudUpload;
 /** Indikator memuat: cincin CSS (Material tidak punya ikon spinner). Tambahkan `animate-spin` lewat className. */
 export function Loader2({ className = '' }) {
   return <span className={`inline-block rounded-full border-2 border-current border-t-transparent ${className}`} aria-hidden="true" />;
+}
+
+/**
+ * Ikon jenis berkas foto dan video (gambar sendiri, bukan dari Material): bingkai foto dengan
+ * gunung dan matahari, serta papan klap dengan tombol putar. Warna mengikuti `currentColor`
+ * (kelas text-*), ukuran mengikuti kelas w-* / h-*; kanvas diberi margin agar bobot visualnya
+ * setara dengan ikon Material di sebelahnya.
+ */
+export function Image({ className = '', style, ...props }) {
+  return (
+    <svg viewBox="-52 -52 616 616" fill="currentColor" className={className} style={style} aria-hidden="true" {...props}>
+      <path
+        fillRule="evenodd"
+        d="M28 58h456a28 28 0 0 1 28 28v342a28 28 0 0 1-28 28H28a28 28 0 0 1-28-28V86a28 28 0 0 1 28-28Zm4 32v230l122-136q16-16 32 0l132 149 68-65q14-12 28 0l66 55V90Zm354 40a45 45 0 1 0 0 90 45 45 0 0 0 0-90Z"
+      />
+    </svg>
+  );
+}
+
+export function Video({ className = '', style, ...props }) {
+  const id = useId();
+  return (
+    <svg viewBox="0 0 512 512" fill="currentColor" className={className} style={style} aria-hidden="true" {...props}>
+      <mask id={id}>
+        <rect width="512" height="512" fill="#fff" />
+        {/* garis pemisah papan klap */}
+        <rect x="40" y="147" width="432" height="36" fill="#000" />
+        {/* dua garis miring di bagian atas */}
+        <path d="M104 50h52l92 97h-52ZM218 50h52l92 97h-52Z" fill="#000" />
+        {/* tombol putar */}
+        <path d="M214 248v88l100-44Z" fill="#000" stroke="#000" strokeWidth="26" strokeLinejoin="round" />
+      </mask>
+      <rect x="55" y="55" width="402" height="402" rx="104" mask={`url(#${id})`} />
+    </svg>
+  );
 }
