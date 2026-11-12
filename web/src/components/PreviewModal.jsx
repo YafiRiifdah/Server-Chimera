@@ -1,11 +1,28 @@
 import useEscapeKey from '../hooks/useEscapeKey.js';
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Download, ChevronLeft, ChevronRight, ExternalLink, FileQuestion, FileText, Music, ZoomIn, ZoomOut } from '../icons.jsx';
+import { X, Download, ChevronLeft, ChevronRight, ExternalLink, FileQuestion, Music, ZoomIn, ZoomOut, Loader2 } from '../icons.jsx';
 import { rawUrl as rawUrlFor, thumbUrl } from '../utils/urls.js';
-import { getFileCategory, formatFileSize } from './FileIcon.jsx';
+import FileIcon, { getFileCategory, formatFileSize } from './FileIcon.jsx';
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 6;
+const SCREEN_W = 2048; // lebar versi layar yang dibuat server
+const SMALL_FILE = 700 * 1024; // di bawah ini berkas asli sudah cukup ringan untuk dipakai langsung
+
+const extOf = (file) => (file?.name.split('.').pop() || '').toLowerCase();
+const isHeic = (file) => ['heic', 'heif'].includes(extOf(file));
+
+/**
+ * URL gambar untuk pratinjau. Foto kamera 5–6 MB terlalu berat diunduh utuh setiap pindah foto,
+ * jadi dipakai versi layar (JPEG 2048 px, ±10x lebih kecil, di-cache server dan browser).
+ * GIF/SVG tetap asli (animasi dan vektor), berkas kecil juga asli. HEIC selalu lewat server.
+ */
+function screenUrlFor(file) {
+  const ext = extOf(file);
+  if (isHeic(file)) return thumbUrl(file, SCREEN_W);
+  if (['gif', 'svg'].includes(ext) || (file.size || 0) < SMALL_FILE) return rawUrlFor(file);
+  return thumbUrl(file, SCREEN_W);
+}
 
 /**
  * Lightbox pratinjau (Master Prompt §5.5): gambar (zoom scroll/pinch, geser), video, audio, PDF, teks;
@@ -21,6 +38,10 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
   const dragRef = useRef(null); // {x, y, ox, oy}
   const pinchRef = useRef(null); // {dist, zoom}
   const swipeRef = useRef(null); // {x, y, t}
+  const [loadedSrc, setLoadedSrc] = useState(null); // URL gambar utama yang sudah selesai dimuat
+  const [screenFailed, setScreenFailed] = useState(null); // path yang versi layarnya gagal → pakai asli
+  const [fullReady, setFullReady] = useState(null); // path yang berkas aslinya sudah siap (dipakai saat zoom)
+  const [placeholderFailed, setPlaceholderFailed] = useState(null);
 
   const onlyFiles = (fileList || []).filter((it) => it.type !== 'folder');
   const currentIndex = onlyFiles.findIndex((f) => f.path === activeFile?.path);
@@ -32,8 +53,43 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
   const canDownload = activeFile?.canDownload !== false;
   const category = activeFile ? getFileCategory(activeFile.name, activeFile.mime) : 'file';
   const ext = activeFile ? (activeFile.name.split('.').pop() || '').toLowerCase() : '';
-  // HEIC/HEIF tidak bisa dirender browser: minta server mengonversi lewat thumbnail besar
-  const imageSrc = ['heic', 'heif'].includes(ext) ? thumbUrl(activeFile, 2048) : rawUrl;
+  const pathKey = activeFile?.path;
+  const screenSrc = activeFile && category === 'image' ? screenUrlFor(activeFile) : '';
+  // Asli dipakai bila versi layar gagal dibuat, atau setelah di-zoom dan berkas aslinya selesai dimuat
+  const useOriginal = !!activeFile && !isHeic(activeFile) && (screenFailed === pathKey || fullReady === pathKey);
+  const imageSrc = useOriginal ? rawUrl : screenSrc;
+  const imageLoaded = loadedSrc === imageSrc;
+
+  // Muat lebih dulu foto di sebelahnya agar pindah dengan panah terasa langsung
+  const neighborUrls = [prevFile, nextFile, currentIndex >= 0 ? onlyFiles[currentIndex + 2] : null]
+    .filter((f) => f && getFileCategory(f.name, f.mime) === 'image')
+    .map(screenUrlFor)
+    .join('|');
+  useEffect(() => {
+    if (!neighborUrls) return;
+    neighborUrls.split('|').forEach((url) => {
+      const img = new window.Image();
+      img.decoding = 'async';
+      img.src = url;
+    });
+  }, [neighborUrls]);
+
+  // Saat diperbesar, ambil berkas asli di latar lalu tukar begitu siap (detail penuh hanya bila diperlukan)
+  useEffect(() => {
+    if (!activeFile || category !== 'image' || zoom <= 1 || isHeic(activeFile)) return undefined;
+    if (screenSrc === rawUrl || fullReady === pathKey || screenFailed === pathKey) return undefined;
+    let cancelled = false;
+    const img = new window.Image();
+    img.onload = () => {
+      if (cancelled) return;
+      setLoadedSrc(rawUrl);
+      setFullReady(pathKey);
+    };
+    img.src = rawUrl;
+    return () => {
+      cancelled = true;
+    };
+  }, [zoom, pathKey, category, rawUrl, screenSrc, fullReady, screenFailed, activeFile]);
 
   // Reset zoom tiap ganti file
   useEffect(() => {
@@ -173,7 +229,7 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
     >
       <div className="h-14 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-white/10 bg-black/40">
         <div className="flex items-center gap-3 truncate min-w-0">
-          <FileText className="w-5 h-5 text-sky-400 shrink-0" />
+          <FileIcon item={activeFile} className="w-5 h-5 shrink-0" />
           <div className="truncate">
             <span className="font-semibold text-sm truncate">{activeFile.name}</span>
             <span className="text-xs text-[#94a3b8] ml-2 hidden sm:inline">({formatFileSize(activeFile.size)})</span>
@@ -254,22 +310,52 @@ export default function PreviewModal({ activeFile, fileList, onClose, onNavigate
 
         <div className="max-w-full max-h-full flex items-center justify-center overflow-hidden w-full h-full">
           {category === 'image' && (
-            <img
-              src={imageSrc}
-              alt={activeFile.name}
-              draggable={false}
-              onDoubleClick={toggleZoom}
-              onPointerDown={onPointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              onPointerCancel={onPointerUp}
-              style={{
-                transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
-                transition: dragRef.current ? 'none' : 'transform 80ms',
-                cursor: zoom > 1 ? 'grab' : 'zoom-in'
-              }}
-              className="max-h-[82vh] max-w-full object-contain rounded-lg shadow-2xl"
-            />
+            <div className="relative flex items-center justify-center max-w-full max-h-full">
+              {/* Selama versi layar dimuat: tampilkan thumbnail kecil (biasanya sudah ada di cache) + indikator */}
+              {!imageLoaded && placeholderFailed !== pathKey && (
+                <img
+                  key={`ph:${pathKey}`}
+                  src={thumbUrl(activeFile, 320)}
+                  alt=""
+                  aria-hidden="true"
+                  draggable={false}
+                  onError={() => setPlaceholderFailed(pathKey)}
+                  className="h-[82vh] max-w-full object-contain rounded-lg opacity-70 blur-[2px]"
+                />
+              )}
+              {!imageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span className="p-3 rounded-full bg-black/50">
+                    <Loader2 className="w-6 h-6 animate-spin text-on-accent" />
+                  </span>
+                </div>
+              )}
+              <img
+                key={`main:${pathKey}`}
+                src={imageSrc}
+                alt={activeFile.name}
+                draggable={false}
+                decoding="async"
+                onLoad={() => setLoadedSrc(imageSrc)}
+                onError={() => {
+                  // Versi layar gagal dibuat (format tidak didukung server): jatuh ke berkas asli
+                  if (imageSrc !== rawUrl) setScreenFailed(pathKey);
+                }}
+                onDoubleClick={toggleZoom}
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                onPointerCancel={onPointerUp}
+                style={{
+                  transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+                  transition: dragRef.current ? 'none' : 'transform 80ms',
+                  cursor: zoom > 1 ? 'grab' : 'zoom-in'
+                }}
+                className={`max-h-[82vh] max-w-full object-contain rounded-lg shadow-2xl ${
+                  imageLoaded ? '' : 'absolute opacity-0 pointer-events-none'
+                }`}
+              />
+            </div>
           )}
 
           {category === 'video' && (
