@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MoreVertical, Star } from '../icons.jsx';
 import FileIcon, { formatFileSize, formatDate } from './FileIcon.jsx';
 import Thumbnail from './Thumbnail.jsx';
 import { hasDragItems } from '../utils/dnd.js';
 import { longPressHandlers } from '../utils/touch.js';
-import { useVirtualRows, gridColumns } from '../hooks/useVirtualRows.js';
+import { useVirtualRows, columnsFor, FOLDER_MIN_W, FILE_MIN_W } from '../hooks/useVirtualRows.js';
 
 const FOLDER_ROW_H = 56 + 12; // tinggi kartu folder + gap
 const FILE_ROW_H = 176 + 12; // tinggi kartu file (h-44) + gap
 const VIRTUAL_MIN = 120; // mulai virtualisasi di atas jumlah ini
+const GRID_GAP = 12; // px, sama dengan gap-3
 
 /**
  * Tampilan petak. `mode`: 'drive' | 'list' (Terbaru/Berbintang/Pencarian) | 'trash' | 'shared'.
@@ -28,13 +29,23 @@ export default function FileGrid({
   onItemDrop
 }) {
   const [dragOverFolder, setDragOverFolder] = useState(null);
-  const [cols, setCols] = useState(() => gridColumns(window.innerWidth));
+  // Lebar area petak yang sebenarnya (bukan lebar jendela): sidebar memakan tempat, jadi kolom dihitung dari sini
+  const rootRef = useRef(null);
+  const [width, setWidth] = useState(() => Math.max(280, window.innerWidth - (window.innerWidth >= 768 ? 304 : 24)));
 
   useEffect(() => {
-    const onResize = () => setCols(gridColumns(window.innerWidth));
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    const el = rootRef.current;
+    if (!el) return undefined;
+    const measure = () => setWidth(el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
+
+  // Kartu folder lebih lebar daripada kartu file agar nama tidak cepat terpotong (pola Google Drive)
+  const folderCols = columnsFor(width, FOLDER_MIN_W);
+  const fileCols = columnsFor(width, FILE_MIN_W);
 
   const folders = items.filter((it) => it.type === 'folder');
   const files = items.filter((it) => it.type !== 'folder');
@@ -42,13 +53,13 @@ export default function FileGrid({
   const canDrop = mode === 'drive';
   const virtual = items.length > VIRTUAL_MIN && !!scrollRef;
 
-  const folderRows = Math.ceil(folders.length / cols);
-  const fileRows = Math.ceil(files.length / cols);
+  const folderRows = Math.ceil(folders.length / folderCols);
+  const fileRows = Math.ceil(files.length / fileCols);
   const vFolders = useVirtualRows({ scrollRef, rowCount: folderRows, rowHeight: FOLDER_ROW_H, enabled: virtual });
   const vFiles = useVirtualRows({ scrollRef, rowCount: fileRows, rowHeight: FILE_ROW_H, enabled: virtual });
 
-  const visibleFolders = folders.slice(vFolders.start * cols, vFolders.end * cols);
-  const visibleFiles = files.slice(vFiles.start * cols, vFiles.end * cols);
+  const visibleFolders = folders.slice(vFolders.start * folderCols, vFolders.end * folderCols);
+  const visibleFiles = files.slice(vFiles.start * fileCols, vFiles.end * fileCols);
 
   const handleDragOver = (e, targetFolder) => {
     if (!canDrop || targetFolder.type !== 'folder' || !hasDragItems(e)) return;
@@ -95,15 +106,15 @@ export default function FileGrid({
     return item.type === 'folder' ? '' : formatFileSize(item.size);
   };
 
-  const gridClass = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3';
+  const gridStyle = (n) => ({ display: 'grid', gap: GRID_GAP, gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` });
 
   return (
-    <div className="space-y-6 select-none">
+    <div ref={rootRef} className="space-y-6 select-none">
       {folders.length > 0 && (
         <div ref={vFolders.anchorRef}>
           <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">Folder ({folders.length})</h2>
           {virtual && <div style={{ height: vFolders.padTop }} />}
-          <div className={gridClass}>
+          <div style={gridStyle(folderCols)}>
             {visibleFolders.map((folder) => {
               const isSelected = selectedKeys.has(folder.key);
               const isDragTarget = dragOverFolder === folder.key;
@@ -122,12 +133,12 @@ export default function FileGrid({
                   {...(touch ? longPressHandlers(() => onItemLongPress?.(folder)) : {})}
                   className={cardClass(
                     isSelected,
-                    `flex items-center justify-between gap-2 px-3.5 py-3 h-14 ${isDragTarget ? 'ring-2 ring-sky-500 bg-sky-50' : ''}`
+                    `flex items-center justify-between gap-1 pl-3.5 pr-1.5 py-3 h-14 ${isDragTarget ? 'ring-2 ring-sky-500 bg-sky-50' : ''}`
                   )}
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
                     <FileIcon item={folder} className="w-6 h-6 shrink-0" />
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium text-slate-700 truncate flex items-center gap-1" title={folder.name}>
                         <span className="truncate">{folder.name}</span>
                         {folder.starred && <Star className="w-3 h-3 text-slate-500 fill-slate-500 shrink-0" />}
@@ -160,7 +171,7 @@ export default function FileGrid({
         <div ref={vFiles.anchorRef}>
           <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">File ({files.length})</h2>
           {virtual && <div style={{ height: vFiles.padTop }} />}
-          <div className={gridClass}>
+          <div style={gridStyle(fileCols)}>
             {visibleFiles.map((file) => {
               const isSelected = selectedKeys.has(file.key);
               return (

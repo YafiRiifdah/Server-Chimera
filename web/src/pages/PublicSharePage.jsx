@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Logo, Lock, Download, ChevronRight, FolderArchive, Eye, AlertCircle, Loader2 } from '../icons.jsx';
+import { Logo, Lock, Download, ChevronRight, FolderArchive, Eye, AlertCircle, Loader2, List, LayoutGrid } from '../icons.jsx';
 import { api } from '../api/client.js';
 import FileIcon, { formatFileSize, formatDate } from '../components/FileIcon.jsx';
 import Thumbnail from '../components/Thumbnail.jsx';
@@ -18,6 +18,22 @@ export default function PublicSharePage({ token }) {
   const [password, setPassword] = useState('');
   const [unlockError, setUnlockError] = useState('');
   const [preview, setPreview] = useState(null);
+  // Tampilan folder: petak (bawaan, enak untuk foto/video) atau daftar; diingat di browser pengunjung
+  const [viewMode, setViewModeState] = useState(() => {
+    try {
+      return localStorage.getItem('chimera_public_view') === 'list' ? 'list' : 'grid';
+    } catch {
+      return 'grid';
+    }
+  });
+  const setViewMode = (mode) => {
+    setViewModeState(mode);
+    try {
+      localStorage.setItem('chimera_public_view', mode);
+    } catch {
+      /* penyimpanan tidak tersedia */
+    }
+  };
 
   const load = async (sub = path) => {
     setLoading(true);
@@ -52,6 +68,10 @@ export default function PublicSharePage({ token }) {
   const toItem = (e) => ({ ...e, publicToken: token, key: e.path, canDownload });
 
   const segments = path ? path.split('/').filter(Boolean) : [];
+  const isFolderView = !!info && info.unlocked && info.type === 'folder';
+  const folders = isFolderView ? info.entries.filter((e) => e.type === 'folder') : [];
+  const files = isFolderView ? info.entries.filter((e) => e.type !== 'folder') : [];
+  const openEntry = (e) => (e.type === 'folder' ? load(e.path) : setPreview(toItem(e)));
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -63,7 +83,7 @@ export default function PublicSharePage({ token }) {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-4 sm:p-8">
+      <main className={`${isFolderView && viewMode === 'grid' ? 'max-w-6xl' : 'max-w-4xl'} mx-auto p-4 sm:p-8`}>
         {loading && (
           <div className="py-20 flex items-center justify-center gap-2 text-slate-400 text-sm">
             <Loader2 className="w-5 h-5 animate-spin" /> Memuat...
@@ -171,51 +191,125 @@ export default function PublicSharePage({ token }) {
                   </React.Fragment>
                 ))}
               </nav>
-              {canDownload ? (
-                <a
-                  href={zipUrl([{ publicToken: token, path }])}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-on-accent text-sm font-semibold shrink-0"
-                >
-                  <FolderArchive className="w-5 h-5" /> Download semua (zip)
-                </a>
-              ) : (
-                <span className="text-xs text-slate-400">{info.limitReached ? 'Batas download sudah tercapai' : 'Hanya bisa dilihat'}</span>
-              )}
-            </div>
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50/70 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                <tr>
-                  <th className="text-left py-3 px-5">Nama</th>
-                  <th className="text-left py-3 px-4 w-40 hidden sm:table-cell">Diubah</th>
-                  <th className="text-right py-3 px-5 w-28">Ukuran</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {info.entries.map((e) => (
-                  <tr
-                    key={e.path}
-                    onClick={() => (e.type === 'folder' ? load(e.path) : setPreview(toItem(e)))}
-                    className="hover:bg-slate-50 cursor-pointer"
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="flex items-center bg-surface p-0.5 rounded-full border border-slate-200/60">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    title="Tampilan daftar"
+                    aria-label="Tampilan daftar"
+                    aria-pressed={viewMode === 'list'}
+                    className={`p-1.5 px-3 rounded-full ${viewMode === 'list' ? 'bg-selected text-sky-950' : 'text-slate-600 hover:bg-surface-hover'}`}
                   >
-                    <td className="py-2 px-5">
-                      <div className="flex items-center gap-3">
-                        <Thumbnail item={toItem(e)} width={64} className="w-7 h-7 rounded-md shrink-0" iconClassName="w-5 h-5" />
-                        <span className="truncate">{e.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 text-xs text-slate-400 hidden sm:table-cell">{formatDate(e.mtime)}</td>
-                    <td className="py-2 px-5 text-xs text-slate-400 text-right">{e.type === 'folder' ? '—' : formatFileSize(e.size)}</td>
-                  </tr>
-                ))}
-                {info.entries.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="py-12 text-center text-slate-400">
-                      Folder ini kosong
-                    </td>
-                  </tr>
+                    <List className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    title="Tampilan petak"
+                    aria-label="Tampilan petak"
+                    aria-pressed={viewMode === 'grid'}
+                    className={`p-1.5 px-3 rounded-full ${viewMode === 'grid' ? 'bg-selected text-sky-950' : 'text-slate-600 hover:bg-surface-hover'}`}
+                  >
+                    <LayoutGrid className="w-5 h-5" />
+                  </button>
+                </div>
+                {canDownload ? (
+                  <a
+                    href={zipUrl([{ publicToken: token, path }])}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-on-accent text-sm font-semibold shrink-0"
+                  >
+                    <FolderArchive className="w-5 h-5" /> <span className="hidden sm:inline">Download semua (zip)</span>
+                    <span className="sm:hidden">Zip</span>
+                  </a>
+                ) : (
+                  <span className="text-xs text-slate-400">
+                    {info.limitReached ? 'Batas download sudah tercapai' : 'Hanya bisa dilihat'}
+                  </span>
                 )}
-              </tbody>
-            </table>
+              </div>
+            </div>
+
+            {viewMode === 'grid' && (
+              <div className="p-4 sm:p-5 space-y-5">
+                {info.entries.length === 0 && <p className="py-12 text-center text-sm text-slate-400">Folder ini kosong</p>}
+                {folders.length > 0 && (
+                  <section>
+                    <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Folder ({folders.length})</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {folders.map((e) => (
+                        <button
+                          key={e.path}
+                          onClick={() => openEntry(e)}
+                          className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-surface hover:bg-surface-hover text-left min-w-0"
+                          title={e.name}
+                        >
+                          <FileIcon item={e} className="w-6 h-6 shrink-0" />
+                          <span className="truncate text-sm font-medium text-slate-800">{e.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
+                {files.length > 0 && (
+                  <section>
+                    <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">File ({files.length})</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                      {files.map((e) => (
+                        <button
+                          key={e.path}
+                          onClick={() => openEntry(e)}
+                          className="group rounded-2xl bg-surface hover:bg-surface-hover text-left overflow-hidden min-w-0"
+                          title={e.name}
+                        >
+                          <div className="aspect-[4/3] bg-slate-100 overflow-hidden">
+                            <Thumbnail item={toItem(e)} width={320} className="w-full h-full" iconClassName="w-12 h-12" />
+                          </div>
+                          <div className="px-3 py-2 flex items-center gap-2 min-w-0">
+                            <FileIcon item={e} className="w-5 h-5 shrink-0" />
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-medium text-slate-800">{e.name}</div>
+                              <div className="text-[11px] text-slate-400">{formatFileSize(e.size)}</div>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </div>
+            )}
+
+            {viewMode === 'list' && (
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50/70 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <tr>
+                    <th className="text-left py-3 px-5">Nama</th>
+                    <th className="text-left py-3 px-4 w-40 hidden sm:table-cell">Diubah</th>
+                    <th className="text-right py-3 px-5 w-28">Ukuran</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {info.entries.map((e) => (
+                    <tr key={e.path} onClick={() => openEntry(e)} className="hover:bg-slate-50 cursor-pointer">
+                      <td className="py-2 px-5">
+                        <div className="flex items-center gap-3">
+                          <Thumbnail item={toItem(e)} width={64} className="w-7 h-7 rounded-md shrink-0" iconClassName="w-5 h-5" />
+                          <span className="truncate">{e.name}</span>
+                        </div>
+                      </td>
+                      <td className="py-2 px-4 text-xs text-slate-400 hidden sm:table-cell">{formatDate(e.mtime)}</td>
+                      <td className="py-2 px-5 text-xs text-slate-400 text-right">{e.type === 'folder' ? '—' : formatFileSize(e.size)}</td>
+                    </tr>
+                  ))}
+                  {info.entries.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="py-12 text-center text-slate-400">
+                        Folder ini kosong
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
 
@@ -230,9 +324,6 @@ export default function PublicSharePage({ token }) {
           onNavigateFile={(next) => setPreview(next)}
         />
       )}
-      <span className="hidden">
-        <FileIcon item={{ type: 'folder' }} />
-      </span>
     </div>
   );
 }

@@ -42,11 +42,14 @@ export function useVirtualRows({ scrollRef, rowCount, rowHeight, enabled, oversc
   return { start, end, anchorRef, padTop: start * rowHeight, padBottom: Math.max(0, (rowCount - end) * rowHeight) };
 }
 
-/** Jumlah kolom petak mengikuti breakpoint Tailwind (2/3/4/5/6). */
-export function gridColumns(width) {
-  if (width >= 1280) return 6;
-  if (width >= 1024) return 5;
-  if (width >= 768) return 4;
-  if (width >= 640) return 3;
-  return 2;
+/**
+ * Jumlah kolom petak dari lebar area yang tersedia dan lebar minimum kartu (gap 12 px).
+ * Minimal 2 kolom agar layar HP tetap menampilkan dua kartu berdampingan.
+ */
+export function columnsFor(width, minCardWidth, gap = 12) {
+  return Math.max(2, Math.floor((width + gap) / (minCardWidth + gap)));
 }
+
+/** Lebar minimum kartu petak (px): folder lebih lebar agar nama terbaca, file mengikuti thumbnail. */
+export const FOLDER_MIN_W = 210;
+export const FILE_MIN_W = 172;

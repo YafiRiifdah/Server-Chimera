@@ -39,7 +39,7 @@ export default function Breadcrumb({ title, root, currentPath, onNavigate, onDro
   };
 
   const crumb = (active, dragOver, extra = '') =>
-    `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xl sm:text-2xl font-normal transition-colors truncate max-w-[280px] ${
+    `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xl sm:text-2xl font-normal transition-colors truncate max-w-[calc(100vw-5rem)] sm:max-w-[360px] ${
       active ? 'text-slate-800' : 'text-slate-600'
     } hover:bg-slate-100 ${dragOver ? 'ring-2 ring-sky-500 bg-sky-50' : ''} ${extra}`;
 

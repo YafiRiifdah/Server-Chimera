@@ -36,7 +36,7 @@ import { copyText } from '../utils/clipboard.js';
 import { rawUrl, zipUrl } from '../utils/urls.js';
 import { isTouchDevice } from '../utils/touch.js';
 import { loadSort, saveSort, sortItems } from '../utils/sort.js';
-import { gridColumns } from '../hooks/useVirtualRows.js';
+import { columnsFor, FOLDER_MIN_W, FILE_MIN_W } from '../hooks/useVirtualRows.js';
 import { UploadCloud, List, LayoutGrid, Info, Trash2, Users } from '../icons.jsx';
 
 // Upload bersamaan dibatasi 3 file (Master Prompt §5.4)
@@ -892,7 +892,10 @@ export default function DrivePage({ user, onLogout }) {
         let next;
         if (idx === -1) next = 0;
         else {
-          const cols = viewMode === 'grid' ? gridColumns(mainRef.current?.clientWidth || window.innerWidth) : 1;
+          // Petak folder dan petak file punya jumlah kolom berbeda; pakai milik item yang sedang aktif
+          const gridEl = mainRef.current?.querySelector('[data-item-key]')?.parentElement?.parentElement?.parentElement;
+          const gridWidth = gridEl?.clientWidth || (mainRef.current?.clientWidth || window.innerWidth) - 48;
+          const cols = viewMode === 'grid' ? columnsFor(gridWidth, order[idx].type === 'folder' ? FOLDER_MIN_W : FILE_MIN_W) : 1;
           const delta = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' ? -cols : cols;
           next = Math.min(order.length - 1, Math.max(0, idx + delta));
         }
@@ -970,8 +973,9 @@ export default function DrivePage({ user, onLogout }) {
         />
 
         <main ref={mainRef} onMouseDown={onMainMouseDown} className="flex-1 flex flex-col p-3 sm:p-6 overflow-y-auto min-w-0">
-          <div className="flex items-center justify-between gap-2 sm:gap-4 mb-2 flex-wrap">
-            <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-x-2 gap-y-1 sm:gap-4 mb-2 flex-wrap">
+            {/* HP: breadcrumb memakai satu baris penuh, tombol tampilan turun ke baris berikutnya */}
+            <div className="min-w-0 flex-1 basis-full sm:basis-0">
               <Breadcrumb
                 title={headerTitle}
                 root={breadcrumbRoot}
@@ -982,7 +986,7 @@ export default function DrivePage({ user, onLogout }) {
               />
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
               {section === 'trash' && items.length > 0 && (
                 <button
                   onClick={handleEmptyTrash}
